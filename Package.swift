@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "MacDiag",
+    name: "Hixup",
     platforms: [.macOS("26.0")],
     products: [
-        .library(name: "MacDiagCore", targets: ["MacDiagCore"])
+        .library(name: "HixupCore", targets: ["HixupCore"])
     ],
     targets: [
-        .target(name: "MacDiagCore"),
-        .testTarget(name: "MacDiagCoreTests", dependencies: ["MacDiagCore"])
+        .target(name: "HixupCore"),
+        .testTarget(name: "HixupCoreTests", dependencies: ["HixupCore"])
     ]
 )

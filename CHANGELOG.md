@@ -4,7 +4,7 @@
 
 ## [Unreleased] – Core Collectors
 
-- Swift Package `MacDiagCore` (macOS 26+)
+- Swift Package `HixupCore` (macOS 26+)
 - `MemoryCollector`: verfuegbarer Speicher in Prozent, belegt, komprimiert
 - `ProcessCollector`: CPU-Last aus Messdifferenz, Top-N plus beobachtete Prozesse
 - Tests mit Stubs und gegen das echte System (13 Tests)

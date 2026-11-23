@@ -1,5 +1,5 @@
 import Testing
-@testable import MacDiagCore
+@testable import HixupCore
 
 struct StubMemoryProvider: MemoryStatsProviding {
     let stats: RawMemoryStats

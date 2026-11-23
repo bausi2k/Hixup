@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import MacDiagCore
+@testable import HixupCore
 
 final class StubProcessLister: ProcessListing, @unchecked Sendable {
     var batches: [[RawProcess]]

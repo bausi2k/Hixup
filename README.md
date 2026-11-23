@@ -1,4 +1,4 @@
-# MacDiag
+# Hixup
 
 Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergrundprozess loggt dauerhaft Systemwerte und meldet kritische Zustaende per Notification. Verteilung notarisiert ausserhalb des App Stores.
 
@@ -6,14 +6,14 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Phase 1 von 6: `MacDiagCore` mit Speicher- und Prozess-Collectors.
+Phase 1 von 6: `HixupCore` mit Speicher- und Prozess-Collectors.
 
 ## Architektur
 
 ```
-MacDiagApp   (geplant)  SwiftUI, Menueleiste, Diagramme
-MacDiagAgent (geplant)  LaunchAgent, permanentes Logging, Regeln, Notifications
-MacDiagCore  (aktuell)  Collectors, Regel-Engine, Storage – ohne UI, voll testbar
+HixupApp   (geplant)  SwiftUI, Menueleiste, Diagramme
+HixupAgent (geplant)  LaunchAgent, permanentes Logging, Regeln, Notifications
+HixupCore  (aktuell)  Collectors, Regel-Engine, Storage – ohne UI, voll testbar
 ```
 
 Collectors lesen ueber injizierbare Provider (`MemoryStatsProviding`, `ProcessListing`). Die System-Implementierungen nutzen `host_statistics64`, `sysctl` und `libproc`; Tests laufen mit Stubs.
