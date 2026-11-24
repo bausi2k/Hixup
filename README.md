@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Phase 1 von 6: `HixupCore` mit Speicher- und Prozess-Collectors.
+Phase 2 von 6 abgeschlossen: `HixupCore` mit Collectors, SQLite-Storage und Regel-Engine.
 
 ## Architektur
 
@@ -25,5 +25,14 @@ Voraussetzung: Xcode (der Package-Manifest der Command Line Tools kennt macOS 26
 ```bash
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
 ```
+
+## Storage und Regeln
+
+- `SQLiteSnapshotStore`: Snapshots (Speicher + Top-Prozesse) als JSON in SQLite, Zeitraumabfrage, `purge(olderThan:)` fuer die Retention (geplant: 14 Tage).
+- `RuleEngine`: Regel = Metrik, Schwellwert, Mindestdauer, Cooldown. Die Zeit stammt aus den Snapshots, nicht aus einer Uhr. Standardregeln: Speicher unter 15 % fuer 60 s (critical), Prozess ueber 200 % CPU fuer 120 s (warning).
+
+## Bekannte Einschraenkungen
+
+- `kernel_task` (PID 0) ist ueber `libproc` ohne Root nicht lesbar und fehlt in der Prozessliste. Eine Gesamt-CPU-Metrik folgt spaeter.
 
 Die urspruenglichen Diagnose-Scripts bleiben vorerst als Referenz im Repo `scripts`.

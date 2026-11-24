@@ -2,7 +2,14 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Core Collectors
+## [Unreleased] – Storage und Regeln
+
+- `Snapshot`-Modell und `SQLiteSnapshotStore` (Append, Zeitraumabfrage, Purge)
+- `RuleEngine` mit Mindestdauer und Cooldown, `Alert`-Ereignisse mit Verursacher
+- Standardregeln fuer knappen Speicher und anhaltend hohe CPU-Last
+- 29 Tests; CPU-Berechnung gegen `ps` verifiziert (98,0 % vs. 98,5 %)
+
+## Core Collectors
 
 - Swift Package `HixupCore` (macOS 26+)
 - `MemoryCollector`: verfuegbarer Speicher in Prozent, belegt, komprimiert
