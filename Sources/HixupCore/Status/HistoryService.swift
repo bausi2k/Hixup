@@ -28,7 +28,7 @@ public struct History: Equatable, Sendable {
     public let points: [TrendPoint]
     public let alerts: [Alert]
     public let markers: [Marker]
-    /// Verursacher ueber den gesamten Zeitraum (Mittel der ausgeduennten Snapshots).
+    /// Verursacher ueber den gesamten Zeitraum (Mittel gleichmaessig ausgeduennter Snapshots, ohne Spitzen-Verzerrung).
     public let offenders: [Offender]
 }
 
@@ -49,12 +49,13 @@ public struct HistoryService: Sendable {
     public func history(range: HistoryRange, now: Date = Date()) throws -> History {
         let start = now.addingTimeInterval(-range.duration)
         let sampled = try snapshots.sampledSnapshots(from: start, to: now, maxPoints: maxPoints)
+        let peaks = try snapshots.peakSnapshots(from: start, to: now, maxPoints: maxPoints)
         let evaluator = StatusEvaluator(
             rules: [], offenderWindow: range.duration, staleAfter: .infinity, maxOffenders: maxOffenders
         )
         return History(
             range: range,
-            points: sampled.map(TrendPoint.init(snapshot:)),
+            points: peaks.map(TrendPoint.init(snapshot:)),
             alerts: try events.alerts(from: start, to: now),
             markers: try events.markers(from: start, to: now),
             offenders: evaluator.evaluate(snapshots: sampled, now: now).offenders

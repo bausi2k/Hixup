@@ -2,7 +2,14 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Gesamt-CPU
+## [Unreleased] – Spitzen im Dashboard
+
+- `SnapshotStore.peakSnapshots`: je Zeitabschnitt der Snapshot mit der hoechsten Belastung (CPU, Energie, Speicherdruck) statt jedem n-ten
+- Neue Spalte `snapshots.load` (Migration fuer bestehende Datenbanken; alte Zeilen zaehlen als 0)
+- Dashboard-Diagramme nutzen Spitzen; Verursacher bleiben aus gleichmaessigen Stichproben berechnet
+- 134 Tests
+
+## Gesamt-CPU
 
 - `SystemCPUCollector`: Gesamtauslastung aller Kerne aus `host_processor_info` (Tick-Differenz); erfasst auch Last ohne Prozesszuordnung, etwa `kernel_task`
 - `Snapshot.systemCPUPercent` (optional; alte Snapshots bleiben lesbar)
