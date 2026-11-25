@@ -65,7 +65,7 @@ public struct StatusEvaluator: Sendable {
 
             let duration = latest.timestamp.timeIntervalSince(since)
             return ActiveViolation(
-                ruleID: rule.id, title: rule.title, severity: rule.severity,
+                ruleID: rule.id, title: rule.title, severity: rule.severity, metric: rule.metric,
                 value: reading.value, threshold: rule.threshold, comparison: rule.comparison,
                 detail: reading.detail, since: since, duration: duration,
                 minimumDuration: rule.minimumDuration, isSustained: duration >= rule.minimumDuration

@@ -2,7 +2,15 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Status-Modell
+## [Unreleased] – Menueleisten-Popover
+
+- Klick auf das Menueleisten-Symbol zeigt ein Popover: Status mit Ampelfarbe und Schlagzeile, Kacheln mit Verlauf (Speicher, CPU, Energie), ueberschrittene Schwellen, groesste Verursacher mit Balken und Gruenden
+- Das Menueleisten-Symbol wechselt bei Warnung und Kritisch die Form (monochromes SF Symbol)
+- `StatusService` (Store -> Status und Verlauf) und `StatusPresentation` (Texte, Symbole) im Core, getestet; `StatusModel` aktualisiert die App alle 5 s
+- `ActiveViolation` kennt jetzt die Metrik (fuer Einheiten)
+- 96 Tests
+
+## Status-Modell
 
 - `StatusEvaluator`: Gesamtstatus (unbekannt, ok, Warnung, kritisch), aktive Regelverstoesse mit Beginn und Dauer, Verursacher-Rangliste
 - Prozesse gleichen Namens werden zusammengefasst und ueber 30 s gemittelt; Gruende CPU, Energie, Speicher, Wakeups
