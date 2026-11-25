@@ -48,17 +48,31 @@ struct StatusPopover: View {
                 points: model.trend.map { ($0.timestamp, $0.availableMemoryPercent) },
                 tint: .blue, domain: 0...100
             )
-            TrendTile(
-                title: "CPU (Top-Prozesse)",
-                value: "\(Int(model.trend.last?.cpuPercent ?? 0)) %",
-                points: model.trend.map { ($0.timestamp, $0.cpuPercent) },
-                tint: .purple
-            )
+            cpuTile
             TrendTile(
                 title: "Energie",
                 value: String(format: "%.1f W", model.trend.last?.energyWatts ?? 0),
                 points: model.trend.map { ($0.timestamp, $0.energyWatts) },
                 tint: .orange
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var cpuTile: some View {
+        if model.trend.contains(where: { $0.systemCPUPercent != nil }) {
+            TrendTile(
+                title: "CPU gesamt",
+                value: "\(Int(model.trend.last?.systemCPUPercent ?? 0)) %",
+                points: model.trend.compactMap { point in point.systemCPUPercent.map { (point.timestamp, $0) } },
+                tint: .purple, domain: 0...100
+            )
+        } else {
+            TrendTile(
+                title: "CPU (Top-Prozesse)",
+                value: "\(Int(model.trend.last?.cpuPercent ?? 0)) %",
+                points: model.trend.map { ($0.timestamp, $0.cpuPercent) },
+                tint: .purple
             )
         }
     }

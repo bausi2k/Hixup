@@ -18,6 +18,8 @@ public struct AgentSettings: Codable, Equatable, Sendable {
     public var processCPUPercent: Double
     /// Alarm, wenn ein Prozess ueber dieser Leistungsaufnahme in Watt liegt (0,5...100).
     public var processEnergyWatts: Double
+    /// Alarm, wenn die Gesamtauslastung aller Kerne ueber diesem Prozentwert liegt (30...100).
+    public var systemCPUPercent: Double
     /// Sekunden, die niedriger Speicher anhalten muss (10...3600).
     public var memoryMinimumSeconds: TimeInterval
     /// Sekunden, die hohe CPU-Last oder hoher Energieverbrauch anhalten muss (10...3600).
@@ -32,8 +34,10 @@ public struct AgentSettings: Codable, Equatable, Sendable {
         processCPUPercent: Double = 200,
         processEnergyWatts: Double = 8,
         memoryMinimumSeconds: TimeInterval = 60,
-        loadMinimumSeconds: TimeInterval = 120
+        loadMinimumSeconds: TimeInterval = 120,
+        systemCPUPercent: Double = 90
     ) {
+        self.systemCPUPercent = systemCPUPercent
         self.memoryLowPercent = memoryLowPercent
         self.processCPUPercent = processCPUPercent
         self.processEnergyWatts = processEnergyWatts
@@ -57,6 +61,7 @@ public struct AgentSettings: Codable, Equatable, Sendable {
         processEnergyWatts = try container.decodeIfPresent(Double.self, forKey: .processEnergyWatts) ?? fallback.processEnergyWatts
         memoryMinimumSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .memoryMinimumSeconds) ?? fallback.memoryMinimumSeconds
         loadMinimumSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .loadMinimumSeconds) ?? fallback.loadMinimumSeconds
+        systemCPUPercent = try container.decodeIfPresent(Double.self, forKey: .systemCPUPercent) ?? fallback.systemCPUPercent
     }
 
     public func clamped() -> AgentSettings {
@@ -69,7 +74,8 @@ public struct AgentSettings: Codable, Equatable, Sendable {
             processCPUPercent: min(max(processCPUPercent, 50), 1_600),
             processEnergyWatts: min(max(processEnergyWatts, 0.5), 100),
             memoryMinimumSeconds: min(max(memoryMinimumSeconds, 10), 3_600),
-            loadMinimumSeconds: min(max(loadMinimumSeconds, 10), 3_600)
+            loadMinimumSeconds: min(max(loadMinimumSeconds, 10), 3_600),
+            systemCPUPercent: min(max(systemCPUPercent, 30), 100)
         )
     }
 

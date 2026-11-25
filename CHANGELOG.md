@@ -2,7 +2,15 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Regel-Einstellungen
+## [Unreleased] – Gesamt-CPU
+
+- `SystemCPUCollector`: Gesamtauslastung aller Kerne aus `host_processor_info` (Tick-Differenz); erfasst auch Last ohne Prozesszuordnung, etwa `kernel_task`
+- `Snapshot.systemCPUPercent` (optional; alte Snapshots bleiben lesbar)
+- Neue Metrik und Regel "Gesamt-CPU-Last hoch" (Standard: ueber 90 % fuer 120 s, Warnung), Schwelle in den Einstellungen
+- Popover-Kachel und Dashboard-Diagramm zeigen "CPU gesamt" (0 bis 100 %, mit Schwellenlinie); ohne Daten bleibt die Summe der Top-Prozesse als Rueckfall
+- 128 Tests; Werte im laufenden Agent gegen `top` geprueft
+
+## Regel-Einstellungen
 
 - Schwellen und Mindestdauern der Standardregeln in den Einstellungen: Speicher knapp (%), Prozess-CPU (%), Prozess-Energie (W), Mindestdauer fuer Speicher und fuer CPU/Energie; Button "Standardwerte"
 - `settings.json` bekommt die neuen Felder; aeltere Dateien laufen mit Standardwerten weiter; Werte werden begrenzt

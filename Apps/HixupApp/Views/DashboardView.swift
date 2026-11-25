@@ -56,12 +56,7 @@ struct DashboardView: View {
                 threshold: 15, domain: 0...100, focusedTime: model.focusedTime
             )
             HStack(spacing: 12) {
-                HistoryChart(
-                    title: "CPU (Top-Prozesse)", unit: "%",
-                    points: history.points.map { ($0.timestamp, $0.cpuPercent) },
-                    tint: .purple, alerts: history.alerts, markers: history.markers,
-                    focusedTime: model.focusedTime
-                )
+                cpuChart(history)
                 HistoryChart(
                     title: "Energie", unit: "W",
                     points: history.points.map { ($0.timestamp, $0.energyWatts) },
@@ -69,6 +64,26 @@ struct DashboardView: View {
                     focusedTime: model.focusedTime
                 )
             }
+        }
+    }
+
+    @ViewBuilder
+    private func cpuChart(_ history: History) -> some View {
+        if history.points.contains(where: { $0.systemCPUPercent != nil }) {
+            HistoryChart(
+                title: "CPU gesamt", unit: "%",
+                points: history.points.compactMap { point in point.systemCPUPercent.map { (point.timestamp, $0) } },
+                tint: .purple, alerts: history.alerts, markers: history.markers,
+                threshold: AgentSettings.load(from: HixupPaths.settingsURL).systemCPUPercent,
+                domain: 0...100, focusedTime: model.focusedTime
+            )
+        } else {
+            HistoryChart(
+                title: "CPU (Top-Prozesse)", unit: "%",
+                points: history.points.map { ($0.timestamp, $0.cpuPercent) },
+                tint: .purple, alerts: history.alerts, markers: history.markers,
+                focusedTime: model.focusedTime
+            )
         }
     }
 

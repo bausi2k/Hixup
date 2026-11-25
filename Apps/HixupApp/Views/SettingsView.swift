@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var memoryLow: Double
     @State private var cpuPercent: Double
     @State private var energyWatts: Double
+    @State private var systemCPU: Double
     @State private var memorySeconds: Double
     @State private var loadSeconds: Double
     @State private var message: String?
@@ -21,6 +22,7 @@ struct SettingsView: View {
         _memoryLow = State(initialValue: settings.memoryLowPercent)
         _cpuPercent = State(initialValue: settings.processCPUPercent)
         _energyWatts = State(initialValue: settings.processEnergyWatts)
+        _systemCPU = State(initialValue: settings.systemCPUPercent)
         _memorySeconds = State(initialValue: settings.memoryMinimumSeconds)
         _loadSeconds = State(initialValue: settings.loadMinimumSeconds)
         _watched = State(initialValue: settings.watchedProcessNames.joined(separator: "\n"))
@@ -51,6 +53,9 @@ struct SettingsView: View {
                 }
                 Stepper(value: $energyWatts, in: 0.5...100, step: 0.5) {
                     LabeledContent("Prozess-Energie über", value: String(format: "%.1f W", energyWatts))
+                }
+                Stepper(value: $systemCPU, in: 30...100, step: 5) {
+                    LabeledContent("Gesamt-CPU über", value: "\(Int(systemCPU)) %")
                 }
                 Stepper(value: $loadSeconds, in: 10...3_600, step: 10) {
                     LabeledContent("CPU/Energie für mindestens", value: "\(Int(loadSeconds)) s")
@@ -86,7 +91,8 @@ struct SettingsView: View {
             sampleInterval: interval, retentionDays: retentionDays,
             watchedProcessNames: AgentSettings.parseWatchedNames(watched), topProcessCount: topCount,
             memoryLowPercent: memoryLow, processCPUPercent: cpuPercent, processEnergyWatts: energyWatts,
-            memoryMinimumSeconds: memorySeconds, loadMinimumSeconds: loadSeconds
+            memoryMinimumSeconds: memorySeconds, loadMinimumSeconds: loadSeconds,
+            systemCPUPercent: systemCPU
         ).clamped()
         do {
             try settings.save(to: HixupPaths.settingsURL)
@@ -101,6 +107,7 @@ struct SettingsView: View {
         memoryLow = defaults.memoryLowPercent
         cpuPercent = defaults.processCPUPercent
         energyWatts = defaults.processEnergyWatts
+        systemCPU = defaults.systemCPUPercent
         memorySeconds = defaults.memoryMinimumSeconds
         loadSeconds = defaults.loadMinimumSeconds
     }
