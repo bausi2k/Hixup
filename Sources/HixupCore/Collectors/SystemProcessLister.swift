@@ -25,7 +25,8 @@ public struct SystemProcessLister: ProcessListing {
 
         var nameBuffer = [CChar](repeating: 0, count: 256)
         proc_name(pid, &nameBuffer, UInt32(nameBuffer.count))
-        let name = String(cString: nameBuffer)
+        let nameBytes = nameBuffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }
+        let name = String(decoding: nameBytes, as: UTF8.self)
 
         let ticks = info.pti_total_user + info.pti_total_system
         let nanoseconds = ticks * UInt64(timebase.numer) / UInt64(timebase.denom)
