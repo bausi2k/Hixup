@@ -1,10 +1,12 @@
 import AppKit
+import Carbon.HIToolbox
 import HixupCore
 import OSLog
 
 final class AgentAppDelegate: NSObject, NSApplicationDelegate {
     private let logger = Logger(subsystem: "casa.gruber.hixup.agent", category: "agent")
     private var runTask: Task<Void, Never>?
+    private var hotKey: HotKeyMonitor?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let notifier = UserNotificationAlertNotifier()
@@ -25,11 +27,26 @@ final class AgentAppDelegate: NSObject, NSApplicationDelegate {
                 reportError: { logger.error("\(String(describing: $0), privacy: .public)") }
             )
             runTask = Task { await runner.run() }
+            registerMarkerHotKey(recorder: MarkerRecorder(events: events))
             logger.info("Agent gestartet")
         } catch {
             logger.fault("Start fehlgeschlagen: \(String(describing: error), privacy: .public)")
             NSApp.terminate(nil)
         }
+    }
+
+    /// Ctrl+Option+Cmd+H setzt eine Markierung, egal in welcher App.
+    private func registerMarkerHotKey(recorder: MarkerRecorder) {
+        let logger = logger
+        hotKey = HotKeyMonitor(keyCode: kVK_ANSI_H, modifiers: controlKey | optionKey | cmdKey) {
+            do {
+                try recorder.mark()
+                NSSound(named: "Pop")?.play()
+            } catch {
+                logger.error("Marker fehlgeschlagen: \(String(describing: error), privacy: .public)")
+            }
+        }
+        if hotKey == nil { logger.error("Hotkey konnte nicht registriert werden") }
     }
 
     func applicationWillTerminate(_ notification: Notification) {

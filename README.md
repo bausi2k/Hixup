@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Status-Modell ist fertig. Menueleisten-Popover und Dashboard sind fertig. Naechster Schritt: Einstellungen und Hotkey fuer Marker.
+Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Status-Modell ist fertig. Menueleisten-Popover und Dashboard sind fertig. Einstellungen und Marker-Hotkey sind fertig. Naechster Schritt: Release v0.2.0 und Phase 6 (Verteilung).
 
 ## Architektur
 
@@ -112,3 +112,7 @@ Das Symbol in der Menueleiste zeigt den Zustand (Puls normal, Dreieck bei Warnun
 ## Dashboard
 
 "Dashboard öffnen" im Popover zeigt Verlaufsdiagramme (Speicher, CPU, Energie), Verursacher und Ereignisse fuer 1 Std., 24 Std. oder 14 Tage. `HistoryService` duennt lange Zeitraeume SQL-seitig auf ca. 400 Punkte aus; die Verursacher-Rangliste basiert auf diesen Stichproben.
+
+## Einstellungen und Marker
+
+Das Einstellungsfenster schreibt `~/Library/Application Support/Hixup/settings.json`; der Agent liest sie bei jeder Messung neu. Mit **⌃⌥⌘H** (oder "Marker setzen" im Popover) markierst Du den Moment, in dem es ruckelt. Marker erscheinen im Dashboard als blaue Linien. Der Hotkey laeuft im Agent und funktioniert daher auch, wenn die App beendet ist.

@@ -6,6 +6,7 @@ struct StatusPopover: View {
     let model: StatusModel
     let service: AgentServiceController
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -114,8 +115,14 @@ struct StatusPopover: View {
                 Button("Systemeinstellungen öffnen") { service.openLoginItemSettings() }
             }
             HStack {
+                Button("Marker setzen") { model.addMarker() }
+                    .help("Markiert den Zeitpunkt im Verlauf (⌃⌥⌘H)")
                 Button("Dashboard öffnen") {
                     openWindow(id: "dashboard")
+                    NSApplication.shared.activate(ignoringOtherApps: true)
+                }
+                Button("Einstellungen") {
+                    openSettings()
                     NSApplication.shared.activate(ignoringOtherApps: true)
                 }
                 Spacer()
