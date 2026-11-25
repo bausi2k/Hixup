@@ -4,4 +4,4 @@ Branch: feature/dashboard (basiert auf feature/menubar-popover)
 
 | Commit | Beschreibung |
 |---|---|
-| (pending) | feat: add dashboard window with history charts |
+| 9b00edd | feat: add dashboard window with history charts |
