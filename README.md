@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Status-Modell ist fertig. Naechster Schritt: Menueleisten-Popover und Dashboard (Phase 4).
+Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Status-Modell ist fertig. Menueleisten-Popover ist fertig. Naechster Schritt: Dashboard-Fenster (Phase 4).
 
 ## Architektur
 
@@ -104,3 +104,7 @@ Pro Prozess erfasst Hixup die vom System geschaetzte Energie (`proc_pid_rusage`,
 - `kernel_task` (PID 0) ist ueber `libproc` ohne Root nicht lesbar und fehlt in der Prozessliste. Eine Gesamt-CPU-Metrik folgt spaeter.
 
 Die urspruenglichen Diagnose-Scripts bleiben vorerst als Referenz im Repo `scripts`.
+
+## Menueleisten-Popover
+
+Das Symbol in der Menueleiste zeigt den Zustand (Puls normal, Dreieck bei Warnung, Achteck bei Kritisch). Ein Klick oeffnet das Popover mit Status, Verlaufskacheln, ueberschrittenen Schwellen und den groessten Verursachern. Die App liest dafuer alle 5 s ueber `StatusService` die Datenbank, die der Agent befuellt; Logik und Texte liegen in `HixupCore`, die Views in `Apps/HixupApp/Views`.

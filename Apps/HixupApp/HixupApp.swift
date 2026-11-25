@@ -1,25 +1,17 @@
-import AppKit
+import HixupCore
 import SwiftUI
 
 @main
 struct HixupApp: App {
     @State private var service = AgentServiceController()
+    @State private var model = StatusModel()
 
     var body: some Scene {
-        MenuBarExtra("Hixup", systemImage: "waveform.path.ecg") {
-            Toggle("Hintergrunddienst", isOn: Binding(
-                get: { service.isEnabled },
-                set: { service.setEnabled($0) }
-            ))
-            Text(service.statusDescription)
-            if let error = service.lastError {
-                Text(error)
-            }
-            if service.status == .requiresApproval {
-                Button("Systemeinstellungen öffnen") { service.openLoginItemSettings() }
-            }
-            Divider()
-            Button("Beenden") { NSApplication.shared.terminate(nil) }
+        MenuBarExtra {
+            StatusPopover(model: model, service: service)
+        } label: {
+            Image(systemName: StatusPresentation.symbolName(for: model.level))
         }
+        .menuBarExtraStyle(.window)
     }
 }

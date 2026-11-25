@@ -24,6 +24,7 @@ public struct ActiveViolation: Equatable, Sendable {
     public let ruleID: String
     public let title: String
     public let severity: Severity
+    public let metric: Metric
     public let value: Double
     public let threshold: Double
     public let comparison: Comparison
