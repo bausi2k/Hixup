@@ -1,5 +1,5 @@
 public enum DefaultRules {
-    public static let all: [Rule] = [memoryLow, cpuSustained, energySustained]
+    public static let all: [Rule] = [memoryLow, cpuSustained, energySustained, cpuSystemHigh]
 
     /// Die Standardregeln mit Schwellen und Mindestdauern aus den Einstellungen.
     public static func rules(for settings: AgentSettings) -> [Rule] {
@@ -22,6 +22,12 @@ public enum DefaultRules {
                 metric: energySustained.metric, comparison: energySustained.comparison,
                 threshold: settings.processEnergyWatts,
                 minimumDuration: settings.loadMinimumSeconds, cooldown: energySustained.cooldown
+            ),
+            Rule(
+                id: cpuSystemHigh.id, title: cpuSystemHigh.title, severity: cpuSystemHigh.severity,
+                metric: cpuSystemHigh.metric, comparison: cpuSystemHigh.comparison,
+                threshold: settings.systemCPUPercent,
+                minimumDuration: settings.loadMinimumSeconds, cooldown: cpuSystemHigh.cooldown
             )
         ]
     }
@@ -35,6 +41,12 @@ public enum DefaultRules {
     public static let cpuSustained = Rule(
         id: "cpu-sustained", title: "Prozess mit anhaltend hoher CPU-Last", severity: .warning,
         metric: .highestProcessCPUPercent, comparison: .above, threshold: 200,
+        minimumDuration: 120, cooldown: 900
+    )
+
+    public static let cpuSystemHigh = Rule(
+        id: "cpu-system-high", title: "Gesamt-CPU-Last hoch", severity: .warning,
+        metric: .systemCPUPercent, comparison: .above, threshold: 90,
         minimumDuration: 120, cooldown: 900
     )
 

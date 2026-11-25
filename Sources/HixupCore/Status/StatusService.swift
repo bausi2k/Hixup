@@ -6,12 +6,15 @@ public struct TrendPoint: Equatable, Sendable {
     public let availableMemoryPercent: Double
     public let cpuPercent: Double
     public let energyWatts: Double
+    /// Gesamtauslastung aller Kerne (0...100); `nil` in aelteren Snapshots.
+    public let systemCPUPercent: Double?
 
     init(snapshot: Snapshot) {
         timestamp = snapshot.timestamp
         availableMemoryPercent = snapshot.memory.availablePercent
         cpuPercent = snapshot.processes.reduce(0) { $0 + $1.cpuPercent }
         energyWatts = snapshot.processes.reduce(0) { $0 + $1.energyWatts }
+        systemCPUPercent = snapshot.systemCPUPercent
     }
 }
 

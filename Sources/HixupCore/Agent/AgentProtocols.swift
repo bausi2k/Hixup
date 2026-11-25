@@ -25,9 +25,15 @@ public struct TaskSleeper: Sleeper {
 public struct SystemSnapshotSampler: SnapshotSampling {
     private let memory: MemoryCollector
     private let processes: ProcessCollector
+    private let cpu: SystemCPUCollector
 
-    public init(memory: MemoryCollector = MemoryCollector(), processes: ProcessCollector = ProcessCollector()) {
+    public init(
+        memory: MemoryCollector = MemoryCollector(),
+        processes: ProcessCollector = ProcessCollector(),
+        cpu: SystemCPUCollector = SystemCPUCollector()
+    ) {
         self.memory = memory
+        self.cpu = cpu
         self.processes = processes
     }
 
@@ -39,7 +45,8 @@ public struct SystemSnapshotSampler: SnapshotSampling {
                 at: date,
                 topCount: settings.topProcessCount,
                 watchedNames: Set(settings.watchedProcessNames)
-            )
+            ),
+            systemCPUPercent: try cpu.collect()
         )
     }
 }
