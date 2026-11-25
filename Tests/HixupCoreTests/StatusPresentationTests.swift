@@ -98,3 +98,35 @@ private func status(_ level: HealthLevel, violations: [ActiveViolation] = []) ->
         #expect(StatusPresentation.hungriestAppRangeTitle == "Ressourcenhungrigste Apps im Zeitraum")
     }
 }
+
+@Suite struct PopoverTextTests {
+    private func offender(
+        cpu: Double = 0, energy: Double = 0, rssGB: Double = 0, wakeups: Double = 0
+    ) -> Offender {
+        Offender(
+            name: "x", processCount: 1, cpuPercent: cpu, energyWatts: energy, wakeupsPerSecond: wakeups,
+            residentBytes: UInt64(rssGB * 1_073_741_824), score: 0, reasons: []
+        )
+    }
+
+    @Test func durationsAreShownInTheLargestSensibleUnit() {
+        #expect(StatusPresentation.durationText(45) == "45 s")
+        #expect(StatusPresentation.durationText(120) == "2 Min.")
+        #expect(StatusPresentation.durationText(3_600) == "1 Std.")
+        #expect(StatusPresentation.durationText(3_900) == "1 Std. 5 Min.")
+    }
+
+    @Test func violationLineCombinesValueThresholdAndDuration() {
+        let line = StatusPresentation.violationLine(violation(
+            .availableMemoryPercent, title: "Freier Speicher knapp", value: 9, threshold: 15, comparison: .below
+        ))
+        #expect(line == "9 % (Schwelle unter 15 %), seit 1 Min.")
+    }
+
+    @Test func headlineMetricPicksTheMetricClosestToItsLimit() {
+        #expect(StatusPresentation.headlineMetric(for: offender(cpu: 240, energy: 1)) == "CPU 240 %")
+        #expect(StatusPresentation.headlineMetric(for: offender(cpu: 10, energy: 9)) == "9,0 W")
+        #expect(StatusPresentation.headlineMetric(for: offender(cpu: 10, rssGB: 8)) == "8,0 GB RAM")
+        #expect(StatusPresentation.headlineMetric(for: offender(cpu: 10, wakeups: 3_000)) == "3000 Wakeups/s")
+    }
+}

@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Popover aufgeräumt
+
+- Verstöße in einer Zeile: "9 % (Schwelle unter 15 %), seit 1 Min."; ein Chip "Beobachtung" ersetzt "noch kein Alarm"
+- Ressourcenhungrigste Apps: nur die Top 3 mit Hauptkennzahl (z. B. "CPU 240 %"); Details per Klick
+- Fußbereich getrennt in Aktionen (Marker, Dashboard) und System (Dienst, Einstellungen, Beenden)
+- Dauer- und Kennzahl-Texte als getestete Funktionen in `StatusPresentation`
+- 158 Tests
+
 ### Eigenständige App
 
 - Hixup startet als normale App mit Dock-Symbol und öffnet das Dashboard als Hauptfenster
