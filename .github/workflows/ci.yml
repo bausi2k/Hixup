@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift-Tests
+        run: swift test
+      - name: Projekt generieren
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Build ohne Signatur
+        run: |
+          xcodebuild -project Hixup.xcodeproj -scheme HixupApp -configuration Release \
+            -derivedDataPath .build/xcode CODE_SIGNING_ALLOWED=NO build

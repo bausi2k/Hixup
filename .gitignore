@@ -6,3 +6,4 @@ DerivedData/
 logs/
 Config/Local.xcconfig
 *.xcodeproj
+dist/

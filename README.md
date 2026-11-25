@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Status-Modell ist fertig. Menueleisten-Popover und Dashboard sind fertig. Einstellungen und Marker-Hotkey sind fertig. Naechster Schritt: Release v0.2.0 und Phase 6 (Verteilung).
+Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Status-Modell ist fertig. Menueleisten-Popover und Dashboard sind fertig. Einstellungen und Marker-Hotkey sind fertig. Release-Pipeline ist angelegt (ungeprueft auf GitHub). Offen: signierte und notarisierte Verteilung (bezahltes Developer Program).
 
 ## Architektur
 
@@ -116,3 +116,7 @@ Das Symbol in der Menueleiste zeigt den Zustand (Puls normal, Dreieck bei Warnun
 ## Einstellungen und Marker
 
 Das Einstellungsfenster schreibt `~/Library/Application Support/Hixup/settings.json`; der Agent liest sie bei jeder Messung neu. Mit **⌃⌥⌘H** (oder "Marker setzen" im Popover) markierst Du den Moment, in dem es ruckelt. Marker erscheinen im Dashboard als blaue Linien. Der Hotkey laeuft im Agent und funktioniert daher auch, wenn die App beendet ist.
+
+## Release
+
+`scripts/build-release.sh` baut die App und packt `dist/Hixup-<Version>.dmg`. Ohne Zertifikat ist das DMG unsigniert und nur zum Testen gedacht; die Registrierung des Hintergrunddienstes funktioniert so nicht zuverlaessig. Fuer die oeffentliche Verteilung noetig: Developer-ID-Zertifikat, `TEAM_ID`, `DEVELOPER_ID` und ein `notarytool`-Profil (`NOTARY_PROFILE`). Pushes von `v*`-Tags loesen den Release-Workflow aus; Dependabot haelt Actions und Swift-Pakete aktuell.
