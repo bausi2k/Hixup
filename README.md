@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Phase 3 von 6: Agent und Xcode-Projekt (Dienst-Registrierung noch ungeprueft, siehe unten).
+Phase 3b von 6: Agent, Xcode-Projekt und Dienst-Registrierung geprueft. Naechste Schritte: App-Icon, Oberflaeche (Phase 4).
 
 ## Architektur
 
@@ -60,7 +60,14 @@ Einstellungen: `~/Library/Application Support/Hixup/settings.json` (wird bei jed
 | `topProcessCount` | 10 | 1–50 |
 | `watchedProcessNames` | [] | z. B. `["Citrix Viewer"]` |
 
-**Offen (braucht Signierung):** Anmeldung des Agents per `SMAppService` und Notification-Zustellung sind noch nicht auf einem echten Lauf geprueft. Der Agent selbst wurde unsigniert gestartet und schreibt Snapshots.
+**Dienstmodell: Login-Item (geprueft).** Der Agent ist ein eingebettetes Login-Item (`SMAppService.loginItem`). Auf macOS 26 verifiziert (Apple-Development-Signierung):
+
+- Anmeldung ueber den Schalter in der Menueleiste, optional mit Freigabe unter Systemeinstellungen, Allgemein, Anmeldeobjekte.
+- Der Agent startet nach einem Absturz (`kill -9`) innerhalb weniger Sekunden automatisch neu.
+- Notifications werden zugestellt: Ein Prozess ueber 200 % CPU fuer mehr als 120 s loest eine Meldung mit Prozessnamen aus.
+- Der Prozess heisst `casa.gruber.hixup.agent`.
+
+Hinweis zur Team-ID: Sie steht im Feld `OU` des Zertifikats, nicht in der Klammer hinter dem Zertifikatsnamen.
 
 ## Storage und Regeln
 
