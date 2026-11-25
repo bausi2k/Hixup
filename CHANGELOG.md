@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Dashboard aufgeräumt
+
+- Diagramme im 2×2-Raster (Speicher, CPU, Energie, Ressourcenhungrigste Apps); Schwellenlinien mit Beschriftung (Werte aus den Einstellungen)
+- Tooltip beim Überfahren der Diagramme (Wert und Zeit); Alerts als Punkte auf der Kurve statt senkrechter Linien
+- Ressourcenhungrigste Apps als Tabelle (Name, CPU, Energie, Speicher)
+- Ereignisse nach Tag gruppiert (`DayGrouping`), Filter Alle / Alerts / Marker
+- 161 Tests
+
 ### Popover aufgeräumt
 
 - Verstöße in einer Zeile: "9 % (Schwelle unter 15 %), seit 1 Min."; ein Chip "Beobachtung" ersetzt "noch kein Alarm"

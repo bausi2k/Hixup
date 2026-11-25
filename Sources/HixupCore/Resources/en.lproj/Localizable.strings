@@ -97,3 +97,12 @@
 "Beobachtung" = "Watching";
 "Mehr anzeigen" = "Show more";
 "Weniger anzeigen" = "Show less";
+"%@ %%" = "%@ %%";
+"%@ MB" = "%@ MB";
+"%@ GB" = "%@ GB";
+"Name" = "Name";
+"Alle" = "All";
+"Alerts" = "Alerts";
+"Schwelle %@" = "Threshold %@";
+"Heute" = "Today";
+"Gestern" = "Yesterday";
