@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Phase 3b von 6: Agent, Xcode-Projekt und Dienst-Registrierung geprueft. Naechste Schritte: App-Icon, Oberflaeche (Phase 4).
+Phase 3b von 6: Agent, Xcode-Projekt und Dienst-Registrierung geprueft. App-Icon vorhanden. Naechster Schritt: Oberflaeche (Phase 4).
 
 ## Architektur
 
@@ -46,6 +46,16 @@ Unsigniert bauen (Build und Tests):
 ```bash
 xcodebuild -project Hixup.xcodeproj -scheme HixupApp CODE_SIGNING_ALLOWED=NO build
 ```
+
+## App-Icon
+
+Das Icon wird per Script erzeugt und als Asset Catalog (`Apps/Shared/Assets.xcassets`) von beiden Targets genutzt. Der Agent braucht es ebenfalls, weil Notifications und die Anmeldeobjekte sein Icon zeigen. Aenderungen am Motiv in `scripts/make-icon.swift`, danach neu erzeugen:
+
+```bash
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift scripts/make-icon.swift
+```
+
+Das Menueleisten-Symbol bleibt das monochrome SF Symbol `waveform.path.ecg` (Apple HIG).
 
 ## Hintergrunddienst
 

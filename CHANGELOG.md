@@ -2,7 +2,12 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Dienst-Registrierung geprueft
+## [Unreleased] – App-Icon
+
+- App-Icon (EKG-Kurve auf Blaugruen-Verlauf) als Asset Catalog fuer App und Agent
+- Reproduzierbare Erzeugung per `scripts/make-icon.swift`
+
+## Dienst-Registrierung geprueft
 
 - Login-Item als Dienstmodell bestaetigt: Anmeldung per `SMAppService`, automatischer Neustart nach Absturz, Notification-Zustellung
 - Entscheidung: kein LaunchAgent noetig

@@ -20,7 +20,7 @@ targets:
   HixupAgent:
     type: application
     platform: macOS
-    sources: [Apps/HixupAgent]
+    sources: [Apps/HixupAgent, Apps/Shared]
     dependencies:
       - package: Hixup
         product: HixupCore
@@ -33,10 +33,11 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: casa.gruber.hixup.agent
         PRODUCT_NAME: HixupAgent
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
   HixupApp:
     type: application
     platform: macOS
-    sources: [Apps/HixupApp]
+    sources: [Apps/HixupApp, Apps/Shared]
     dependencies:
       - target: HixupAgent
         embed: true
@@ -54,3 +55,4 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: casa.gruber.hixup
         PRODUCT_NAME: Hixup
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
