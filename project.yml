@@ -1,0 +1,56 @@
+name: Hixup
+options:
+  bundleIdPrefix: casa.gruber
+  deploymentTarget:
+    macOS: "26.0"
+configFiles:
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.3.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+packages:
+  Hixup:
+    path: .
+targets:
+  HixupAgent:
+    type: application
+    platform: macOS
+    sources: [Apps/HixupAgent]
+    dependencies:
+      - package: Hixup
+        product: HixupCore
+    info:
+      path: Apps/HixupAgent/Info.plist
+      properties:
+        CFBundleDisplayName: Hixup Agent
+        LSUIElement: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: casa.gruber.hixup.agent
+        PRODUCT_NAME: HixupAgent
+  HixupApp:
+    type: application
+    platform: macOS
+    sources: [Apps/HixupApp]
+    dependencies:
+      - target: HixupAgent
+        embed: true
+        copy:
+          destination: wrapper
+          subpath: Contents/Library/LoginItems
+      - package: Hixup
+        product: HixupCore
+    info:
+      path: Apps/HixupApp/Info.plist
+      properties:
+        CFBundleDisplayName: Hixup
+        LSUIElement: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: casa.gruber.hixup
+        PRODUCT_NAME: Hixup

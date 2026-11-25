@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Phase 2 von 6 abgeschlossen: `HixupCore` mit Collectors, SQLite-Storage und Regel-Engine.
+Phase 3 von 6: Agent und Xcode-Projekt (Dienst-Registrierung noch ungeprueft, siehe unten).
 
 ## Architektur
 
@@ -25,6 +25,42 @@ Voraussetzung: Xcode (der Package-Manifest der Command Line Tools kennt macOS 26
 ```bash
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
 ```
+
+## Xcode-Projekt
+
+Das Projekt wird mit [XcodeGen](https://github.com/yonaskolb/XcodeGen) aus `project.yml` erzeugt; die `.xcodeproj` ist nicht eingecheckt.
+
+```bash
+brew install xcodegen
+xcodegen generate && open Hixup.xcodeproj
+```
+
+Aenderungen an Targets und Einstellungen gehoeren in `project.yml`, sonst gehen sie beim naechsten `generate` verloren.
+
+- `HixupApp` (`casa.gruber.hixup`): Menueleisten-App mit Schalter fuer den Hintergrunddienst.
+- `HixupAgent` (`casa.gruber.hixup.agent`): Hintergrund-App, eingebettet unter `Contents/Library/LoginItems`, misst dauerhaft und sendet Notifications.
+- Signierung: Team-ID lokal in `Config/Local.xcconfig` eintragen (Vorlage: `Config/Local.xcconfig.example`, nicht eingecheckt).
+
+Unsigniert bauen (Build und Tests):
+
+```bash
+xcodebuild -project Hixup.xcodeproj -scheme HixupApp CODE_SIGNING_ALLOWED=NO build
+```
+
+## Hintergrunddienst
+
+`AgentRunner` misst im Takt von `sampleInterval`, speichert den Snapshot, wertet die Regeln aus und meldet neue Alerts an einen `AlertNotifier`. Messfehler werden protokolliert und beenden den Dienst nicht. Einmal taeglich werden Snapshots ausserhalb der Retention geloescht.
+
+Einstellungen: `~/Library/Application Support/Hixup/settings.json` (wird bei jedem Durchlauf neu gelesen; fehlende Werte nutzen Standardwerte, ungueltige werden begrenzt).
+
+| Schluessel | Standard | Bereich |
+|---|---|---|
+| `sampleInterval` | 5 | 1–300 s |
+| `retentionDays` | 14 | 1–365 |
+| `topProcessCount` | 10 | 1–50 |
+| `watchedProcessNames` | [] | z. B. `["Citrix Viewer"]` |
+
+**Offen (braucht Signierung):** Anmeldung des Agents per `SMAppService` und Notification-Zustellung sind noch nicht auf einem echten Lauf geprueft. Der Agent selbst wurde unsigniert gestartet und schreibt Snapshots.
 
 ## Storage und Regeln
 
