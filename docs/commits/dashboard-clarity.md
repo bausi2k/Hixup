@@ -4,4 +4,4 @@ Branch: feature/dashboard-clarity (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (siehe git log) | feat: clearer dashboard layout, tooltips and event grouping |
+| fe716b6 | feat: clearer dashboard layout, tooltips and event grouping |
