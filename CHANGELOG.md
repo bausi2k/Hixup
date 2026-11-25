@@ -2,7 +2,15 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Storage und Regeln
+## [Unreleased] – Agent und Xcode-Projekt
+
+- `AgentRunner`: messen, speichern, Regeln auswerten, benachrichtigen, taegliche Retention
+- `AgentSettings` (JSON): Messintervall, Retention, beobachtete Prozesse, Anzahl Top-Prozesse
+- XcodeGen-Projekt mit `HixupApp` (Menueleiste, Dienst-Schalter) und `HixupAgent` (Login-Item, Notifications)
+- Bundle-IDs `casa.gruber.hixup` und `casa.gruber.hixup.agent`
+- 43 Tests; Dienst-Registrierung und Notifications ungeprueft bis zur Signierung
+
+## Storage und Regeln
 
 - `Snapshot`-Modell und `SQLiteSnapshotStore` (Append, Zeitraumabfrage, Purge)
 - `RuleEngine` mit Mindestdauer und Cooldown, `Alert`-Ereignisse mit Verursacher
