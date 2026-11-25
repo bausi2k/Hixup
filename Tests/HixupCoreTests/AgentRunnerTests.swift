@@ -35,6 +35,21 @@ private final class SpyStore: SnapshotStore, @unchecked Sendable {
     func count() throws -> Int { appended.value.count }
 }
 
+private final class SpyEventStore: EventStore, @unchecked Sendable {
+    let recorded = Box<[Alert]>([])
+    let purgeDates = Box<[Date]>([])
+    var failsRecording = false
+
+    func record(_ alert: Alert) throws {
+        if failsRecording { throw StorageError.queryFailed("test") }
+        recorded.value.append(alert)
+    }
+    func alerts(from start: Date, to end: Date) throws -> [Alert] { recorded.value }
+    func addMarker(_ marker: Marker) throws {}
+    func markers(from start: Date, to end: Date) throws -> [Marker] { [] }
+    func purge(olderThan date: Date) throws -> Int { purgeDates.value.append(date); return 0 }
+}
+
 private final class SpyNotifier: AlertNotifier, @unchecked Sendable {
     let alerts = Box<[Alert]>([])
     func notify(_ alert: Alert) async { alerts.value.append(alert) }
@@ -59,6 +74,7 @@ private func makeRunner(
     samples: [Result<Snapshot, CollectorError>],
     rules: [Rule] = [],
     store: SpyStore = SpyStore(),
+    events: SpyEventStore = SpyEventStore(),
     notifier: SpyNotifier = SpyNotifier(),
     sleeper: Sleeper = LimitedSleeper(limit: 1),
     settings: @escaping @Sendable () -> AgentSettings = { .defaults },
@@ -66,7 +82,7 @@ private func makeRunner(
     errors: Box<[String]> = Box([])
 ) -> AgentRunner {
     AgentRunner(
-        sampler: QueueSampler(samples), store: store, engine: RuleEngine(rules: rules),
+        sampler: QueueSampler(samples), store: store, events: events, engine: RuleEngine(rules: rules),
         notifier: notifier, sleeper: sleeper, loadSettings: settings, now: now,
         reportError: { errors.value.append(String(describing: $0)) }
     )
@@ -160,5 +176,48 @@ private let lowMemory = Rule(
         await runner.run()
 
         #expect(store.appended.value.count == 1)
+    }
+
+    @Test func raisedAlertsArePersistedInTheEventStore() async {
+        let events = SpyEventStore()
+        let runner = makeRunner(
+            samples: [.success(makeSnapshot(at: 0, available: 5)), .success(makeSnapshot(at: 60, available: 5))],
+            rules: [lowMemory], events: events
+        )
+
+        await runner.tick()
+        await runner.tick()
+
+        #expect(events.recorded.value.map(\.ruleID) == ["memory-low"])
+    }
+
+    @Test func eventStoreFailureIsReportedButTheNotificationStillGoesOut() async {
+        let events = SpyEventStore()
+        events.failsRecording = true
+        let notifier = SpyNotifier()
+        let errors = Box<[String]>([])
+        let runner = makeRunner(
+            samples: [.success(makeSnapshot(at: 0, available: 5)), .success(makeSnapshot(at: 60, available: 5))],
+            rules: [lowMemory], events: events, notifier: notifier, errors: errors
+        )
+
+        await runner.tick()
+        await runner.tick()
+
+        #expect(errors.value.count == 1)
+        #expect(notifier.alerts.value.count == 1)
+    }
+
+    @Test func retentionPurgeAlsoCoversTheEventStore() async {
+        let events = SpyEventStore()
+        let runner = makeRunner(
+            samples: [.success(makeSnapshot(at: 0))],
+            events: events, settings: { AgentSettings(retentionDays: 7) },
+            now: { Date(timeIntervalSince1970: 1_000_000) }
+        )
+
+        await runner.tick()
+
+        #expect(events.purgeDates.value == [Date(timeIntervalSince1970: 1_000_000 - 7 * 86_400)])
     }
 }

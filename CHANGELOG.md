@@ -2,7 +2,15 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Energie-Collector
+## [Unreleased] – Store-Erweiterungen
+
+- SQLite im WAL-Modus (`busy_timeout` 5 s): paralleles Lesen und Schreiben durch App und Agent
+- `SQLiteEventStore`: Alerts und manuelle Marker persistent, mit Zeitraumabfrage und Purge
+- Gemeinsame `SQLiteDatabase`-Huelle fuer beide Stores
+- `AgentRunner` speichert jeden Alert; Fehler beim Speichern verhindern die Notification nicht
+- 65 Tests
+
+## Energie-Collector
 
 - Energie (Watt) und Wakeups pro Sekunde je Prozess aus `proc_pid_rusage`
 - Auswahl: Top-N nach CPU zusaetzlich Top-N nach Energie, dazu beobachtete Prozesse

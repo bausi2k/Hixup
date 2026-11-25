@@ -6,6 +6,7 @@ public actor AgentRunner {
 
     private let sampler: any SnapshotSampling
     private let store: any SnapshotStore
+    private let events: any EventStore
     private let engine: RuleEngine
     private let notifier: any AlertNotifier
     private let sleeper: any Sleeper
@@ -17,6 +18,7 @@ public actor AgentRunner {
     public init(
         sampler: any SnapshotSampling,
         store: any SnapshotStore,
+        events: any EventStore,
         engine: RuleEngine,
         notifier: any AlertNotifier,
         sleeper: any Sleeper = TaskSleeper(),
@@ -26,6 +28,7 @@ public actor AgentRunner {
     ) {
         self.sampler = sampler
         self.store = store
+        self.events = events
         self.engine = engine
         self.notifier = notifier
         self.sleeper = sleeper
@@ -68,6 +71,11 @@ public actor AgentRunner {
         }
 
         for alert in engine.evaluate(snapshot) {
+            do {
+                try events.record(alert)
+            } catch {
+                reportError(error)
+            }
             await notifier.notify(alert)
         }
     }
@@ -75,8 +83,10 @@ public actor AgentRunner {
     private func purgeIfDue(at date: Date, retentionDays: Int) {
         if let lastPurge, date.timeIntervalSince(lastPurge) < Self.purgeInterval { return }
         lastPurge = date
+        let cutoff = date.addingTimeInterval(-Double(retentionDays) * 86_400)
         do {
-            try store.purge(olderThan: date.addingTimeInterval(-Double(retentionDays) * 86_400))
+            try store.purge(olderThan: cutoff)
+            try events.purge(olderThan: cutoff)
         } catch {
             reportError(error)
         }

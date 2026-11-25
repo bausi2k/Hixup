@@ -13,10 +13,12 @@ final class AgentAppDelegate: NSObject, NSApplicationDelegate {
         do {
             try FileManager.default.createDirectory(at: HixupPaths.supportDirectory, withIntermediateDirectories: true)
             let store = try SQLiteSnapshotStore(path: HixupPaths.databaseURL.path)
+            let events = try SQLiteEventStore(path: HixupPaths.databaseURL.path)
             let logger = logger
             let runner = AgentRunner(
                 sampler: SystemSnapshotSampler(),
                 store: store,
+                events: events,
                 engine: RuleEngine(rules: DefaultRules.all),
                 notifier: notifier,
                 loadSettings: { AgentSettings.load(from: HixupPaths.settingsURL) },
