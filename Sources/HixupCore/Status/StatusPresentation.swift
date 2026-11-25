@@ -2,8 +2,6 @@ import Foundation
 
 /// Textliche und symbolische Darstellung des Status; bewusst ohne UI-Framework, damit testbar.
 public enum StatusPresentation {
-    private static let locale = Locale(identifier: "de_AT")
-
     public static func headline(for status: SystemStatus) -> String {
         switch status.level {
         case .unknown:
@@ -64,9 +62,50 @@ public enum StatusPresentation {
         }
     }
 
+    /// Dauer in der groessten sinnvollen Einheit, z. B. "45 s", "2 Min." oder "1 Std. 5 Min.".
+    public static func durationText(_ seconds: TimeInterval) -> String {
+        let total = Int(seconds.rounded())
+        if total < 60 { return L10n.tr("%d s", total) }
+        let minutes = total / 60
+        if minutes < 60 { return L10n.tr("%d Min.", minutes) }
+        let hours = minutes / 60
+        let rest = minutes % 60
+        return rest == 0 ? L10n.tr("%d Std.", hours) : L10n.tr("%d Std. %d Min.", hours, rest)
+    }
+
+    /// Eine Zeile je Verstoss: Wert, Schwelle und Dauer.
+    public static func violationLine(_ violation: ActiveViolation) -> String {
+        L10n.tr(
+            "%@ (Schwelle %@), seit %@",
+            valueText(violation), thresholdText(violation), durationText(violation.duration)
+        )
+    }
+
+    /// Die Kennzahl, die ihrem Referenzwert am naechsten kommt, als kurzer Text fuer die Rangliste.
+    public static func headlineMetric(for offender: Offender) -> String {
+        let limits = OffenderThresholds.defaults
+        let candidates: [(ratio: Double, text: String)] = [
+            (offender.cpuPercent / limits.cpuPercent, L10n.tr("CPU %@ %%", number(offender.cpuPercent, fraction: 0))),
+            (offender.energyWatts / limits.energyWatts, L10n.tr("%@ W", number(offender.energyWatts, fraction: 1))),
+            (
+                Double(offender.residentBytes) / Double(limits.residentBytes),
+                L10n.tr("%@ GB RAM", number(Double(offender.residentBytes) / 1_073_741_824, fraction: 1))
+            ),
+            (
+                offender.wakeupsPerSecond / limits.wakeupsPerSecond,
+                L10n.tr("%@ Wakeups/s", number(offender.wakeupsPerSecond, fraction: 0))
+            )
+        ]
+        return candidates.max { $0.ratio < $1.ratio }?.text ?? ""
+    }
+
+    private static func number(_ value: Double, fraction: Int) -> String {
+        value.formatted(.number.precision(.fractionLength(fraction)).grouping(.never).locale(L10n.locale))
+    }
+
     private static func format(_ value: Double, metric: Metric) -> String {
         let fraction = metric == .highestProcessEnergyWatts ? 1 : 0
-        let number = value.formatted(.number.precision(.fractionLength(fraction)).locale(locale))
+        let number = value.formatted(.number.precision(.fractionLength(fraction)).grouping(.never).locale(L10n.locale))
         return "\(number) \(metric == .highestProcessEnergyWatts ? "W" : "%")"
     }
 }

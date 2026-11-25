@@ -36,8 +36,6 @@
 "CPU (Top-Prozesse)" = "CPU (Top-Prozesse)";
 "Auffällig" = "Auffällig";
 "Schwellen überschritten" = "Schwellen überschritten";
-"%@ (Schwelle %@) seit %d s" = "%@ (Schwelle %@) seit %d s";
-" – noch kein Alarm" = " – noch kein Alarm";
 "Es liegen keine aktuellen Messwerte vor. Läuft der Hintergrunddienst?" = "Es liegen keine aktuellen Messwerte vor. Läuft der Hintergrunddienst?";
 "Hintergrunddienst" = "Hintergrunddienst";
 "Systemeinstellungen öffnen" = "Systemeinstellungen öffnen";
@@ -87,3 +85,15 @@
 "Im Dock anzeigen" = "Im Dock anzeigen";
 "Menüleisten-Symbol anzeigen" = "Menüleisten-Symbol anzeigen";
 "Mindestens eines von beiden bleibt aktiv, damit Hixup erreichbar bleibt." = "Mindestens eines von beiden bleibt aktiv, damit Hixup erreichbar bleibt.";
+"%d s" = "%d s";
+"%d Min." = "%d Min.";
+"%d Std." = "%d Std.";
+"%d Std. %d Min." = "%d Std. %d Min.";
+"%@ (Schwelle %@), seit %@" = "%@ (Schwelle %@), seit %@";
+"CPU %@ %%" = "CPU %@ %%";
+"%@ W" = "%@ W";
+"%@ GB RAM" = "%@ GB RAM";
+"%@ Wakeups/s" = "%@ Wakeups/s";
+"Beobachtung" = "Beobachtung";
+"Mehr anzeigen" = "Mehr anzeigen";
+"Weniger anzeigen" = "Weniger anzeigen";

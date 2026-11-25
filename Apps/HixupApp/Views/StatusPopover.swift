@@ -94,10 +94,17 @@ struct StatusPopover: View {
                     Image(systemName: violation.severity == .critical ? "exclamationmark.octagon.fill" : "exclamationmark.triangle.fill")
                         .foregroundStyle(violation.severity == .critical ? .red : .orange)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text(violation.detail.map { "\(violation.title): \($0)" } ?? violation.title)
-                            .font(.callout)
-                        Text(L10n.tr("%@ (Schwelle %@) seit %d s", StatusPresentation.valueText(violation), StatusPresentation.thresholdText(violation), Int(violation.duration))
-                            + (violation.isSustained ? "" : L10n.tr(" – noch kein Alarm")))
+                        HStack(spacing: 6) {
+                            Text(violation.detail.map { "\(violation.title): \($0)" } ?? violation.title)
+                                .font(.callout)
+                            if !violation.isSustained {
+                                Text(L10n.tr("Beobachtung"))
+                                    .font(.caption2.weight(.medium))
+                                    .padding(.horizontal, 5).padding(.vertical, 1)
+                                    .background(.quaternary, in: Capsule())
+                            }
+                        }
+                        Text(StatusPresentation.violationLine(violation))
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
@@ -110,7 +117,7 @@ struct StatusPopover: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(StatusPresentation.hungriestAppTitle).font(.subheadline.weight(.semibold))
             let maxScore = max(offenders.map(\.score).max() ?? 1, 0.001)
-            ForEach(offenders, id: \.name) { offender in
+            ForEach(Array(offenders.prefix(3)), id: \.name) { offender in
                 OffenderRow(offender: offender, relativeScore: offender.score / maxScore)
             }
             if offenders.isEmpty {
@@ -128,7 +135,18 @@ struct StatusPopover: View {
     }
 
     private var footer: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Button(L10n.tr("Marker setzen")) { model.addMarker() }
+                    .help(L10n.tr("Markiert den Zeitpunkt im Verlauf (⌃⌥⌘H)"))
+                Button(L10n.tr("Dashboard öffnen")) {
+                    openWindow(id: "dashboard")
+                    NSApplication.shared.activate(ignoringOtherApps: true)
+                }
+                .buttonStyle(.borderedProminent)
+                Spacer()
+            }
+            Divider()
             Toggle(L10n.tr("Hintergrunddienst"), isOn: Binding(
                 get: { service.isEnabled },
                 set: { service.setEnabled($0) }
@@ -138,12 +156,6 @@ struct StatusPopover: View {
                 Button(L10n.tr("Systemeinstellungen öffnen")) { service.openLoginItemSettings() }
             }
             HStack {
-                Button(L10n.tr("Marker setzen")) { model.addMarker() }
-                    .help(L10n.tr("Markiert den Zeitpunkt im Verlauf (⌃⌥⌘H)"))
-                Button(L10n.tr("Dashboard öffnen")) {
-                    openWindow(id: "dashboard")
-                    NSApplication.shared.activate(ignoringOtherApps: true)
-                }
                 Button(L10n.tr("Einstellungen")) {
                     openSettings()
                     NSApplication.shared.activate(ignoringOtherApps: true)
@@ -151,6 +163,7 @@ struct StatusPopover: View {
                 Spacer()
                 Button(L10n.tr("Beenden")) { NSApplication.shared.terminate(nil) }
             }
+            .buttonStyle(.link)
         }
     }
 }
@@ -158,6 +171,7 @@ struct StatusPopover: View {
 private struct OffenderRow: View {
     let offender: Offender
     let relativeScore: Double
+    @State private var isExpanded = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -165,18 +179,21 @@ private struct OffenderRow: View {
                 Text(offender.processCount > 1 ? "\(offender.name) ×\(offender.processCount)" : offender.name)
                     .font(.callout).lineLimit(1)
                 Spacer()
-                ForEach(offender.reasons, id: \.self) { reason in
-                    Text(StatusPresentation.label(for: reason))
-                        .font(.caption2.weight(.medium))
-                        .padding(.horizontal, 5).padding(.vertical, 1)
-                        .background(.orange.opacity(0.2), in: Capsule())
-                }
+                Text(StatusPresentation.headlineMetric(for: offender))
+                    .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                    .font(.caption2).foregroundStyle(.tertiary)
             }
             ProgressView(value: relativeScore)
                 .tint(offender.reasons.isEmpty ? .gray : .orange)
-            Text(L10n.tr("CPU %.0f %% · %.1f W · %.0f Wakeups/s", offender.cpuPercent, offender.energyWatts, offender.wakeupsPerSecond))
-                .font(.caption2).foregroundStyle(.secondary)
+            if isExpanded {
+                Text(L10n.tr("CPU %.0f %% · %.1f W · %.0f Wakeups/s", offender.cpuPercent, offender.energyWatts, offender.wakeupsPerSecond))
+                    .font(.caption2).foregroundStyle(.secondary)
+            }
         }
+        .contentShape(Rectangle())
+        .onTapGesture { isExpanded.toggle() }
         .accessibilityElement(children: .combine)
+        .accessibilityHint(isExpanded ? L10n.tr("Weniger anzeigen") : L10n.tr("Mehr anzeigen"))
     }
 }

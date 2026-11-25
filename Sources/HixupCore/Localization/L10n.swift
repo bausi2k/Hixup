@@ -39,6 +39,11 @@ public enum L10n {
         }
     }
 
+    /// Zahlenformat passend zur Sprache (de: Komma und Punkt, en: Punkt und Komma).
+    public static var locale: Locale {
+        Locale(identifier: resolved() == .de ? "de_AT" : "en_GB")
+    }
+
     /// Uebersetzt `key` in die aktuelle Sprache; `args` ersetzen `%@`/`%d` im Text.
     public static func tr(_ key: String, _ args: CVarArg...) -> String {
         translate(key, args: args)
