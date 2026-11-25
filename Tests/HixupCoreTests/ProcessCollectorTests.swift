@@ -160,7 +160,8 @@ private func proc(
         #expect(sample.wakeupsPerSecond == 0)
     }
 
-    @Test func systemListerReportsEnergyForBusyCurrentProcess() throws {
+    @Test(.disabled(if: ProcessInfo.processInfo.environment["CI"] != nil, "virtuelle CI-Runner liefern keine Energiezaehler"))
+    func systemListerReportsEnergyForBusyCurrentProcess() throws {
         var value = 0.0
         let end = Date().addingTimeInterval(0.2)
         while Date() < end { value += sin(value) + 1 }

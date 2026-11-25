@@ -9,7 +9,7 @@
 - `scripts/build-release.sh`: Release-Build und DMG; mit `DEVELOPER_ID`, `TEAM_ID`, `NOTARY_PROFILE` signiert und notarisiert
 - Release-Workflow (`release.yml`) baut bei `v*`-Tags ein unsigniertes DMG und legt ein GitHub-Release an
 - Notarisierte Verteilung braucht das bezahlte Apple Developer Program (Developer-ID-Zertifikat); bis dahin sind Releases unsigniert
-- CI und Release-Workflow sind noch nicht auf GitHub gelaufen (Runner `macos-26` und Tag-Lauf ungeprueft)
+- CI laeuft auf `macos-26`; der Energiezaehler-Test wird auf virtuellen CI-Runnern uebersprungen (dort kein Energy Accounting)
 
 ## Einstellungen und Hotkey
 
