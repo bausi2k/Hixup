@@ -4,4 +4,4 @@ Branch: feature/app-shell (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (siehe git log) | feat: standalone app with optional Dock icon |
+| 1ce27f7 | feat: standalone app with optional Dock icon |
