@@ -4,4 +4,4 @@ Branch: feature/settings-breeds (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (siehe git log) | feat: sensitivity levels by dog breed |
+| e7ae5f9 | feat: sensitivity levels by dog breed |
