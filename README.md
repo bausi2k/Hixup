@@ -132,3 +132,7 @@ Neben der Last einzelner Prozesse misst der Agent die Gesamtauslastung aller Ker
 ## Empfindlichkeit
 
 In den Einstellungen waehlt ein Schieberegler die Alarm-Schwellen: Labrador (gelassen), Border Collie (Standard) oder Dobermann (wachsam). Die Feineinstellung der einzelnen Werte bleibt moeglich.
+
+## Sprache
+
+Hixup gibt es auf Deutsch und Englisch. In den Einstellungen waehlt "Sprache" zwischen System, Deutsch und English; die Auswahl gilt sofort und wird auch vom Hintergrunddienst fuer Benachrichtigungen genutzt. Neue Texte werden als Schluessel (deutscher Text) in `Sources/HixupCore/Resources/{de,en}.lproj/Localizable.strings` eingetragen.

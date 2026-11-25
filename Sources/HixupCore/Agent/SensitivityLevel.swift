@@ -17,9 +17,9 @@ public enum SensitivityLevel: String, CaseIterable, Sendable {
 
     public var summary: String {
         switch self {
-        case .labrador: "Gelassen: meldet sich nur bei klaren Problemen."
-        case .borderCollie: "Aufmerksam: ausgewogene Standardwerte."
-        case .dobermann: "Wachsam: schlägt früh und schnell an."
+        case .labrador: L10n.tr("Gelassen: meldet sich nur bei klaren Problemen.")
+        case .borderCollie: L10n.tr("Aufmerksam: ausgewogene Standardwerte.")
+        case .dobermann: L10n.tr("Wachsam: schlägt früh und schnell an.")
         }
     }
 

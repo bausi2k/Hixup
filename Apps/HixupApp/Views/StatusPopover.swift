@@ -8,7 +8,10 @@ struct StatusPopover: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.openSettings) private var openSettings
 
+    @Environment(LanguageModel.self) private var languageModel
+
     var body: some View {
+        let _ = languageModel.language
         VStack(alignment: .leading, spacing: 12) {
             header
             if let status = model.status, status.level != .unknown {
@@ -30,14 +33,14 @@ struct StatusPopover: View {
     private var subtitle: String {
         let mood = StatusPresentation.mood(for: model.level)
         guard let name = model.status.flatMap(StatusPresentation.hungriestApp(in:)) else { return mood }
-        return "\(mood) Am hungrigsten: \(name)"
+        return "\(mood) " + L10n.tr("Am hungrigsten: %@", name)
     }
 
     private var header: some View {
         HStack(spacing: 10) {
             Circle().fill(model.level.color).frame(width: 12, height: 12)
             VStack(alignment: .leading, spacing: 1) {
-                Text(model.status.map(StatusPresentation.headline(for:)) ?? "Keine aktuellen Daten")
+                Text(model.status.map(StatusPresentation.headline(for:)) ?? L10n.tr("Keine aktuellen Daten"))
                     .font(.headline)
                 Text(subtitle).font(.caption).foregroundStyle(.secondary)
             }
@@ -49,7 +52,7 @@ struct StatusPopover: View {
     private func tiles(_ status: SystemStatus) -> some View {
         HStack(spacing: 8) {
             TrendTile(
-                title: "Speicher frei",
+                title: L10n.tr("Speicher frei"),
                 value: "\(Int(status.memory?.availablePercent ?? 0)) %",
                 points: model.trend.map { ($0.timestamp, $0.availableMemoryPercent) },
                 tint: .blue, domain: 0...100
@@ -68,14 +71,14 @@ struct StatusPopover: View {
     private var cpuTile: some View {
         if model.trend.contains(where: { $0.systemCPUPercent != nil }) {
             TrendTile(
-                title: "CPU gesamt",
+                title: L10n.tr("CPU gesamt"),
                 value: "\(Int(model.trend.last?.systemCPUPercent ?? 0)) %",
                 points: model.trend.compactMap { point in point.systemCPUPercent.map { (point.timestamp, $0) } },
                 tint: .purple, domain: 0...100
             )
         } else {
             TrendTile(
-                title: "CPU (Top-Prozesse)",
+                title: L10n.tr("CPU (Top-Prozesse)"),
                 value: "\(Int(model.trend.last?.cpuPercent ?? 0)) %",
                 points: model.trend.map { ($0.timestamp, $0.cpuPercent) },
                 tint: .purple
@@ -85,7 +88,7 @@ struct StatusPopover: View {
 
     private func violations(_ violations: [ActiveViolation]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Schwellen überschritten").font(.subheadline.weight(.semibold))
+            Text(L10n.tr("Schwellen überschritten")).font(.subheadline.weight(.semibold))
             ForEach(violations, id: \.ruleID) { violation in
                 HStack(alignment: .firstTextBaseline) {
                     Image(systemName: violation.severity == .critical ? "exclamationmark.octagon.fill" : "exclamationmark.triangle.fill")
@@ -93,8 +96,8 @@ struct StatusPopover: View {
                     VStack(alignment: .leading, spacing: 1) {
                         Text(violation.detail.map { "\(violation.title): \($0)" } ?? violation.title)
                             .font(.callout)
-                        Text("\(StatusPresentation.valueText(violation)) (Schwelle \(StatusPresentation.thresholdText(violation))) seit \(Int(violation.duration)) s"
-                            + (violation.isSustained ? "" : " – noch kein Alarm"))
+                        Text(L10n.tr("%@ (Schwelle %@) seit %d s", StatusPresentation.valueText(violation), StatusPresentation.thresholdText(violation), Int(violation.duration))
+                            + (violation.isSustained ? "" : L10n.tr(" – noch kein Alarm")))
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
@@ -111,14 +114,14 @@ struct StatusPopover: View {
                 OffenderRow(offender: offender, relativeScore: offender.score / maxScore)
             }
             if offenders.isEmpty {
-                Text("Kein Hunger in Sicht").font(.caption).foregroundStyle(.secondary)
+                Text(L10n.tr("Kein Hunger in Sicht")).font(.caption).foregroundStyle(.secondary)
             }
         }
     }
 
     private var unavailable: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Es liegen keine aktuellen Messwerte vor. Läuft der Hintergrunddienst?")
+            Text(L10n.tr("Es liegen keine aktuellen Messwerte vor. Läuft der Hintergrunddienst?"))
                 .font(.callout).foregroundStyle(.secondary)
             if let error = model.loadError { Text(error).font(.caption).foregroundStyle(.red) }
         }
@@ -126,27 +129,27 @@ struct StatusPopover: View {
 
     private var footer: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Toggle("Hintergrunddienst", isOn: Binding(
+            Toggle(L10n.tr("Hintergrunddienst"), isOn: Binding(
                 get: { service.isEnabled },
                 set: { service.setEnabled($0) }
             ))
             if let error = service.lastError { Text(error).font(.caption).foregroundStyle(.red) }
             if service.status == .requiresApproval {
-                Button("Systemeinstellungen öffnen") { service.openLoginItemSettings() }
+                Button(L10n.tr("Systemeinstellungen öffnen")) { service.openLoginItemSettings() }
             }
             HStack {
-                Button("Marker setzen") { model.addMarker() }
-                    .help("Markiert den Zeitpunkt im Verlauf (⌃⌥⌘H)")
-                Button("Dashboard öffnen") {
+                Button(L10n.tr("Marker setzen")) { model.addMarker() }
+                    .help(L10n.tr("Markiert den Zeitpunkt im Verlauf (⌃⌥⌘H)"))
+                Button(L10n.tr("Dashboard öffnen")) {
                     openWindow(id: "dashboard")
                     NSApplication.shared.activate(ignoringOtherApps: true)
                 }
-                Button("Einstellungen") {
+                Button(L10n.tr("Einstellungen")) {
                     openSettings()
                     NSApplication.shared.activate(ignoringOtherApps: true)
                 }
                 Spacer()
-                Button("Beenden") { NSApplication.shared.terminate(nil) }
+                Button(L10n.tr("Beenden")) { NSApplication.shared.terminate(nil) }
             }
         }
     }
@@ -171,7 +174,7 @@ private struct OffenderRow: View {
             }
             ProgressView(value: relativeScore)
                 .tint(offender.reasons.isEmpty ? .gray : .orange)
-            Text(String(format: "CPU %.0f %% · %.1f W · %.0f Wakeups/s", offender.cpuPercent, offender.energyWatts, offender.wakeupsPerSecond))
+            Text(L10n.tr("CPU %.0f %% · %.1f W · %.0f Wakeups/s", offender.cpuPercent, offender.energyWatts, offender.wakeupsPerSecond))
                 .font(.caption2).foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
