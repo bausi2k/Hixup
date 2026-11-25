@@ -2,7 +2,16 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Einstellungen und Hotkey
+## [Unreleased] – Release-Pipeline
+
+- Dependabot (woechentlich) fuer GitHub Actions und Swift-Pakete
+- CI (`.github/workflows/ci.yml`): `swift test` und unsignierter Release-Build auf `macos-26`
+- `scripts/build-release.sh`: Release-Build und DMG; mit `DEVELOPER_ID`, `TEAM_ID`, `NOTARY_PROFILE` signiert und notarisiert
+- Release-Workflow (`release.yml`) baut bei `v*`-Tags ein unsigniertes DMG und legt ein GitHub-Release an
+- Notarisierte Verteilung braucht das bezahlte Apple Developer Program (Developer-ID-Zertifikat); bis dahin sind Releases unsigniert
+- CI und Release-Workflow sind noch nicht auf GitHub gelaufen (Runner `macos-26` und Tag-Lauf ungeprueft)
+
+## Einstellungen und Hotkey
 
 - Einstellungsfenster (Popover -> "Einstellungen"): Messintervall (Standard 5 s), Prozesse pro Messung, Aufbewahrung, immer erfasste Prozesse; schreibt `settings.json`, der Agent uebernimmt es bei der naechsten Messung
 - Globaler Hotkey ⌃⌥⌘H setzt einen Marker (Carbon `RegisterEventHotKey`, keine Berechtigung noetig); laeuft im Agent, also auch bei beendeter App
