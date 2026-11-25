@@ -21,11 +21,31 @@ public struct ProcessSample: Codable, Equatable, Sendable {
     public let residentBytes: UInt64
     /// Prozent eines Kerns; Mehrkernlast kann ueber 100 liegen.
     public let cpuPercent: Double
+    /// Vom System geschaetzte Leistungsaufnahme in Watt ("Energie-Einfluss"), kein Messgeraet.
+    public let energyWatts: Double
+    /// Aufweck-Ereignisse pro Sekunde (Idle-Wakeups + Interrupts).
+    public let wakeupsPerSecond: Double
 
-    public init(pid: Int32, name: String, residentBytes: UInt64, cpuPercent: Double) {
+    public init(
+        pid: Int32, name: String, residentBytes: UInt64, cpuPercent: Double,
+        energyWatts: Double = 0, wakeupsPerSecond: Double = 0
+    ) {
         self.pid = pid
         self.name = name
         self.residentBytes = residentBytes
         self.cpuPercent = cpuPercent
+        self.energyWatts = energyWatts
+        self.wakeupsPerSecond = wakeupsPerSecond
+    }
+
+    /// Aeltere gespeicherte Snapshots kennen Energie und Wakeups nicht; sie gelten als 0.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        pid = try container.decode(Int32.self, forKey: .pid)
+        name = try container.decode(String.self, forKey: .name)
+        residentBytes = try container.decode(UInt64.self, forKey: .residentBytes)
+        cpuPercent = try container.decode(Double.self, forKey: .cpuPercent)
+        energyWatts = try container.decodeIfPresent(Double.self, forKey: .energyWatts) ?? 0
+        wakeupsPerSecond = try container.decodeIfPresent(Double.self, forKey: .wakeupsPerSecond) ?? 0
     }
 }

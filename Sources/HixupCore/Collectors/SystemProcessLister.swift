@@ -30,13 +30,27 @@ public struct SystemProcessLister: ProcessListing {
 
         let ticks = info.pti_total_user + info.pti_total_system
         let nanoseconds = ticks * UInt64(timebase.numer) / UInt64(timebase.denom)
+        let usage = resourceUsage(pid: pid)
 
         return RawProcess(
             pid: pid,
             name: name.isEmpty ? "pid \(pid)" : name,
             residentBytes: info.pti_resident_size,
-            cpuTimeNanoseconds: nanoseconds
+            cpuTimeNanoseconds: nanoseconds,
+            energyNanojoules: usage?.ri_energy_nj ?? 0,
+            wakeups: usage.map { $0.ri_pkg_idle_wkups + $0.ri_interrupt_wkups } ?? 0
         )
+    }
+
+    /// Energie- und Wakeup-Zaehler; fehlt bei Prozessen, auf die ohne Rechte nicht zugegriffen werden darf.
+    private func resourceUsage(pid: pid_t) -> rusage_info_v6? {
+        var usage = rusage_info_v6()
+        let result = withUnsafeMutablePointer(to: &usage) { pointer in
+            pointer.withMemoryRebound(to: rusage_info_t?.self, capacity: 1) {
+                proc_pid_rusage(pid, RUSAGE_INFO_V6, $0)
+            }
+        }
+        return result == 0 ? usage : nil
     }
 
     private static func timebase() -> mach_timebase_info_data_t {

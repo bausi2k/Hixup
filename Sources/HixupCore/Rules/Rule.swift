@@ -26,6 +26,7 @@ struct MetricReading: Equatable {
 public enum Metric: String, Codable, Sendable {
     case availableMemoryPercent
     case highestProcessCPUPercent
+    case highestProcessEnergyWatts
 
     func reading(in snapshot: Snapshot) -> MetricReading? {
         switch self {
@@ -35,6 +36,10 @@ public enum Metric: String, Codable, Sendable {
             return snapshot.processes
                 .max { $0.cpuPercent < $1.cpuPercent }
                 .map { MetricReading(value: $0.cpuPercent, detail: $0.name) }
+        case .highestProcessEnergyWatts:
+            return snapshot.processes
+                .max { $0.energyWatts < $1.energyWatts }
+                .map { MetricReading(value: $0.energyWatts, detail: $0.name) }
         }
     }
 }

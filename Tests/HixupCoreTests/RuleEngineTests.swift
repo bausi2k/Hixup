@@ -24,6 +24,12 @@ private func feed(
     }
 }
 
+private let highEnergyRule = Rule(
+    id: "energy-high", title: "Hoher Energieverbrauch", severity: .warning,
+    metric: .highestProcessEnergyWatts, comparison: .above, threshold: 4,
+    minimumDuration: 30, cooldown: 300
+)
+
 @Suite struct RuleEngineTests {
     @Test func noAlertBeforeMinimumDurationIsReached() {
         let engine = RuleEngine(rules: [lowMemoryRule])
@@ -103,8 +109,25 @@ private func feed(
         #expect(Set(alerts.map(\.ruleID)) == ["memory-low", "cpu-high"])
     }
 
-    @Test func defaultRulesContainMemoryAndCPUChecks() {
+    @Test func energyRuleReportsTheResponsibleProcess() {
+        let engine = RuleEngine(rules: [highEnergyRule])
+        let hog = ProcessSample(pid: 1, name: "Citrix Viewer", residentBytes: 1, cpuPercent: 20, energyWatts: 6.5)
+        let calm = ProcessSample(pid: 2, name: "Finder", residentBytes: 1, cpuPercent: 1, energyWatts: 0.1)
+
+        let alerts = feed(engine, from: 0, to: 30, processes: [calm, hog])
+
+        #expect(alerts.count == 1)
+        #expect(alerts.first?.detail == "Citrix Viewer")
+        #expect(alerts.first?.value == 6.5)
+    }
+
+    @Test func defaultRulesContainMemoryCPUAndEnergyChecks() {
         let ids = Set(DefaultRules.all.map(\.id))
-        #expect(ids == ["memory-low", "cpu-sustained"])
+        #expect(ids == ["memory-low", "cpu-sustained", "energy-sustained"])
+    }
+
+    @Test func defaultEnergyRuleUsesEightWattsForTwoMinutes() {
+        #expect(DefaultRules.energySustained.threshold == 8)
+        #expect(DefaultRules.energySustained.minimumDuration == 120)
     }
 }
