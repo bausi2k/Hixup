@@ -82,7 +82,11 @@ Hinweis zur Team-ID: Sie steht im Feld `OU` des Zertifikats, nicht in der Klamme
 ## Storage und Regeln
 
 - `SQLiteSnapshotStore`: Snapshots (Speicher + Top-Prozesse) als JSON in SQLite, Zeitraumabfrage, `purge(olderThan:)` fuer die Retention (geplant: 14 Tage).
-- `RuleEngine`: Regel = Metrik, Schwellwert, Mindestdauer, Cooldown. Die Zeit stammt aus den Snapshots, nicht aus einer Uhr. Standardregeln: Speicher unter 15 % fuer 60 s (critical), Prozess ueber 200 % CPU fuer 120 s (warning).
+- `RuleEngine`: Regel = Metrik, Schwellwert, Mindestdauer, Cooldown. Die Zeit stammt aus den Snapshots, nicht aus einer Uhr. Standardregeln: Speicher unter 15 % fuer 60 s (critical), Prozess ueber 200 % CPU fuer 120 s (warning), Prozess ueber 8 W geschaetzte Leistung fuer 120 s (warning).
+
+## Energie
+
+Pro Prozess erfasst Hixup die vom System geschaetzte Energie (`proc_pid_rusage`, `ri_energy_nj`) als Leistung in Watt sowie Wakeups pro Sekunde. Das ist eine Schaetzung des Systems, kein Messgeraet. Orientierung auf Apple Silicon: ein voll ausgelasteter Kern liegt bei rund 6 W, vier Threads bei rund 13 W. Daher feuert die Standardregel erst ab 8 W. Prozesse mit hohem Verbrauch und niedriger CPU-Last (z. B. GPU-lastig) werden zusaetzlich zur Top-N nach CPU erfasst.
 
 ## Bekannte Einschraenkungen
 

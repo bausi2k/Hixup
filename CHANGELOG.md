@@ -2,7 +2,15 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – App-Icon
+## [Unreleased] – Energie-Collector
+
+- Energie (Watt) und Wakeups pro Sekunde je Prozess aus `proc_pid_rusage`
+- Auswahl: Top-N nach CPU zusaetzlich Top-N nach Energie, dazu beobachtete Prozesse
+- Neue Metrik `highestProcessEnergyWatts` und Standardregel `energy-sustained` (8 W fuer 120 s)
+- Alte gespeicherte Snapshots ohne Energiewerte bleiben lesbar
+- 53 Tests; Werte mit realer Last geprueft (1 Kern ca. 6 W, 4 Threads ca. 13 W)
+
+## App-Icon
 
 - App-Icon (EKG-Kurve auf Blaugruen-Verlauf) als Asset Catalog fuer App und Agent
 - Reproduzierbare Erzeugung per `scripts/make-icon.swift`
