@@ -4,4 +4,4 @@ Branch: feature/release-pipeline (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (pending) | feat: add dependabot, CI and release pipeline |
+| fab34f7 | feat: add dependabot, CI and release pipeline |
