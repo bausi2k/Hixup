@@ -4,4 +4,4 @@ Branch: feature/settings-hotkey (basiert auf feature/dashboard)
 
 | Commit | Beschreibung |
 |---|---|
-| (pending) | feat: add settings window and global marker hotkey |
+| 94fa61d | feat: add settings window and global marker hotkey |
