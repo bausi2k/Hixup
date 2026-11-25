@@ -1,5 +1,5 @@
 public enum DefaultRules {
-    public static let all: [Rule] = [memoryLow, cpuSustained, energySustained, cpuSystemHigh]
+    public static var all: [Rule] { [memoryLow, cpuSustained, energySustained, cpuSystemHigh] }
 
     /// Die Standardregeln mit Schwellen und Mindestdauern aus den Einstellungen.
     public static func rules(for settings: AgentSettings) -> [Rule] {
@@ -32,27 +32,27 @@ public enum DefaultRules {
         ]
     }
 
-    public static let memoryLow = Rule(
-        id: "memory-low", title: "Freier Speicher knapp", severity: .critical,
+    public static var memoryLow: Rule { Rule(
+        id: "memory-low", title: L10n.tr("Freier Speicher knapp"), severity: .critical,
         metric: .availableMemoryPercent, comparison: .below, threshold: 15,
         minimumDuration: 60, cooldown: 600
-    )
+    ) }
 
-    public static let cpuSustained = Rule(
-        id: "cpu-sustained", title: "Prozess mit anhaltend hoher CPU-Last", severity: .warning,
+    public static var cpuSustained: Rule { Rule(
+        id: "cpu-sustained", title: L10n.tr("Prozess mit anhaltend hoher CPU-Last"), severity: .warning,
         metric: .highestProcessCPUPercent, comparison: .above, threshold: 200,
         minimumDuration: 120, cooldown: 900
-    )
+    ) }
 
-    public static let cpuSystemHigh = Rule(
-        id: "cpu-system-high", title: "Gesamt-CPU-Last hoch", severity: .warning,
+    public static var cpuSystemHigh: Rule { Rule(
+        id: "cpu-system-high", title: L10n.tr("Gesamt-CPU-Last hoch"), severity: .warning,
         metric: .systemCPUPercent, comparison: .above, threshold: 90,
         minimumDuration: 120, cooldown: 900
-    )
+    ) }
 
-    public static let energySustained = Rule(
-        id: "energy-sustained", title: "Prozess mit hohem Energieverbrauch", severity: .warning,
+    public static var energySustained: Rule { Rule(
+        id: "energy-sustained", title: L10n.tr("Prozess mit hohem Energieverbrauch"), severity: .warning,
         metric: .highestProcessEnergyWatts, comparison: .above, threshold: 8,
         minimumDuration: 120, cooldown: 900
-    )
+    ) }
 }

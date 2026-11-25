@@ -31,40 +31,51 @@ struct SettingsView: View {
         _watched = State(initialValue: settings.watchedProcessNames.joined(separator: "\n"))
     }
 
+    @Environment(LanguageModel.self) private var languageModel
+
     var body: some View {
+        let _ = languageModel.language
         Form {
-            Section("Empfindlichkeit") { sensitivity }
+            Section(L10n.tr("Empfindlichkeit")) { sensitivity }
             Section {
-                DisclosureGroup("Feineinstellung der Schwellen", isExpanded: $showFineTuning) { thresholds }
+                DisclosureGroup(L10n.tr("Feineinstellung der Schwellen"), isExpanded: $showFineTuning) { thresholds }
             }
-            Section("Messung") {
+            Section(L10n.tr("Sprache")) {
+                @Bindable var languageModel = languageModel
+                Picker(L10n.tr("Sprache"), selection: $languageModel.language) {
+                    Text(L10n.tr("System")).tag(AppLanguage.system)
+                    Text("Deutsch").tag(AppLanguage.de)
+                    Text("English").tag(AppLanguage.en)
+                }
+            }
+            Section(L10n.tr("Messung")) {
                 Stepper(value: $interval, in: 1...300, step: 1) {
-                    LabeledContent("Messintervall", value: "\(Int(interval)) s")
+                    LabeledContent(L10n.tr("Messintervall"), value: "\(Int(interval)) s")
                 }
                 Stepper(value: $topCount, in: 1...50) {
-                    LabeledContent("Prozesse pro Messung", value: "\(topCount)")
+                    LabeledContent(L10n.tr("Prozesse pro Messung"), value: "\(topCount)")
                 }
                 Stepper(value: $retentionDays, in: 1...365) {
-                    LabeledContent("Aufbewahrung", value: "\(retentionDays) Tage")
+                    LabeledContent(L10n.tr("Aufbewahrung"), value: L10n.tr("%d Tage", retentionDays))
                 }
             }
-            Section("Immer erfassen") {
+            Section(L10n.tr("Immer erfassen")) {
                 TextEditor(text: $watched)
                     .font(.body.monospaced())
                     .frame(height: 80)
-                    .accessibilityLabel("Beobachtete Prozesse")
-                Text("Prozessnamen, getrennt durch Komma oder Zeilenumbruch, z. B. Citrix Viewer.")
+                    .accessibilityLabel(L10n.tr("Beobachtete Prozesse"))
+                Text(L10n.tr("Prozessnamen, getrennt durch Komma oder Zeilenumbruch, z. B. Citrix Viewer."))
                     .font(.caption).foregroundStyle(.secondary)
             }
-            Section("Marker") {
+            Section(L10n.tr("Marker")) {
                 LabeledContent("Hotkey", value: "⌃⌥⌘H")
-                Text("Setzt in jeder App eine Markierung \"jetzt ruckelt es\" im Verlauf. Läuft über den Hintergrunddienst.")
+                Text(L10n.tr("Setzt in jeder App eine Markierung \"jetzt ruckelt es\" im Verlauf. Läuft über den Hintergrunddienst."))
                     .font(.caption).foregroundStyle(.secondary)
             }
             HStack {
                 if let message { Text(message).font(.caption).foregroundStyle(.secondary) }
                 Spacer()
-                Button("Sichern", action: save).keyboardShortcut(.defaultAction)
+                Button(L10n.tr("Sichern"), action: save).keyboardShortcut(.defaultAction)
             }
         }
         .formStyle(.grouped)
@@ -91,7 +102,7 @@ struct SettingsView: View {
         )
         return VStack(alignment: .leading, spacing: 6) {
             Slider(value: slider, in: 0...Double(levels.count - 1), step: 1)
-                .accessibilityLabel("Empfindlichkeit")
+                .accessibilityLabel(L10n.tr("Empfindlichkeit"))
                 .accessibilityValue((matchingLevel ?? lastLevel).title)
             HStack {
                 ForEach(levels, id: \.self) { level in
@@ -100,7 +111,7 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity, alignment: alignment(for: level))
                 }
             }
-            Text(matchingLevel?.summary ?? "Individuell: eigene Werte aus der Feineinstellung.")
+            Text(matchingLevel?.summary ?? L10n.tr("Individuell: eigene Werte aus der Feineinstellung."))
                 .font(.caption).foregroundStyle(.secondary)
         }
     }
@@ -127,24 +138,24 @@ struct SettingsView: View {
     @ViewBuilder
     private var thresholds: some View {
                 Stepper(value: $memoryLow, in: 1...90, step: 1) {
-                    LabeledContent("Speicher knapp unter", value: "\(Int(memoryLow)) %")
+                    LabeledContent(L10n.tr("Speicher knapp unter"), value: "\(Int(memoryLow)) %")
                 }
                 Stepper(value: $memorySeconds, in: 10...3_600, step: 10) {
-                    LabeledContent("… für mindestens", value: "\(Int(memorySeconds)) s")
+                    LabeledContent(L10n.tr("… für mindestens"), value: "\(Int(memorySeconds)) s")
                 }
                 Stepper(value: $cpuPercent, in: 50...1_600, step: 25) {
-                    LabeledContent("Prozess-CPU über", value: "\(Int(cpuPercent)) %")
+                    LabeledContent(L10n.tr("Prozess-CPU über"), value: "\(Int(cpuPercent)) %")
                 }
                 Stepper(value: $energyWatts, in: 0.5...100, step: 0.5) {
-                    LabeledContent("Prozess-Energie über", value: String(format: "%.1f W", energyWatts))
+                    LabeledContent(L10n.tr("Prozess-Energie über"), value: String(format: "%.1f W", energyWatts))
                 }
                 Stepper(value: $systemCPU, in: 30...100, step: 5) {
-                    LabeledContent("Gesamt-CPU über", value: "\(Int(systemCPU)) %")
+                    LabeledContent(L10n.tr("Gesamt-CPU über"), value: "\(Int(systemCPU)) %")
                 }
                 Stepper(value: $loadSeconds, in: 10...3_600, step: 10) {
-                    LabeledContent("CPU/Energie für mindestens", value: "\(Int(loadSeconds)) s")
+                    LabeledContent(L10n.tr("CPU/Energie für mindestens"), value: "\(Int(loadSeconds)) s")
                 }
-                Button("Standardwerte (Border Collie)") { select(.borderCollie) }
+                Button(L10n.tr("Standardwerte (Border Collie)")) { select(.borderCollie) }
                 }
 
     private func save() {
@@ -153,13 +164,13 @@ struct SettingsView: View {
             watchedProcessNames: AgentSettings.parseWatchedNames(watched), topProcessCount: topCount,
             memoryLowPercent: memoryLow, processCPUPercent: cpuPercent, processEnergyWatts: energyWatts,
             memoryMinimumSeconds: memorySeconds, loadMinimumSeconds: loadSeconds,
-            systemCPUPercent: systemCPU
+            systemCPUPercent: systemCPU, language: languageModel.language
         ).clamped()
         do {
             try settings.save(to: HixupPaths.settingsURL)
-            message = "Gesichert. Der Dienst übernimmt es bei der nächsten Messung."
+            message = L10n.tr("Gesichert. Der Dienst übernimmt es bei der nächsten Messung.")
         } catch {
-            message = "Fehler: \(error.localizedDescription)"
+            message = L10n.tr("Fehler: %@", error.localizedDescription)
         }
     }
 }

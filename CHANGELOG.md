@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Englische Version
+
+- `L10n`: prozessweite Lokalisierung (Deutsch/Englisch) über `.strings`-Dateien im Core; der deutsche Text dient als Schlüssel, fehlende Übersetzungen fallen auf Deutsch zurück
+- Einstellungen: Sprache `System` / `Deutsch` / `English`; Wechsel gilt sofort ohne Neustart. `System` folgt der bevorzugten Systemsprache (Fallback Englisch)
+- Die Sprache steht in `settings.json` (`language`), damit der Agent Benachrichtigungen in derselben Sprache sendet
+- Bereits gespeicherte Alerts behalten die Sprache, in der sie entstanden sind
+- 150 Tests (inkl. Prüfung, dass jeder deutsche Schlüssel eine englische Übersetzung hat)
+
 ### Hunde-Wording
 
 - "Größte Verursacher" heißt jetzt "Ressourcenhungrigste App" (Popover und Dashboard)

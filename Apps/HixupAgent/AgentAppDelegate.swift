@@ -22,7 +22,10 @@ final class AgentAppDelegate: NSObject, NSApplicationDelegate {
                 store: store,
                 events: events,
                 engine: RuleEngine(rules: DefaultRules.all),
-                rulesForSettings: { DefaultRules.rules(for: $0) },
+                rulesForSettings: { settings in
+                    L10n.setLanguage(settings.language)
+                    return DefaultRules.rules(for: settings)
+                },
                 notifier: notifier,
                 loadSettings: { AgentSettings.load(from: HixupPaths.settingsURL) },
                 reportError: { logger.error("\(String(describing: $0), privacy: .public)") }

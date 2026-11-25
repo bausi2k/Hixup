@@ -7,27 +7,27 @@ public enum StatusPresentation {
     public static func headline(for status: SystemStatus) -> String {
         switch status.level {
         case .unknown:
-            return "Keine aktuellen Daten"
+            return L10n.tr("Keine aktuellen Daten")
         case .ok:
-            return "Alles in Ordnung"
+            return L10n.tr("Alles in Ordnung")
         case .warning, .critical:
             let sustained = status.violations.filter(\.isSustained)
-            guard let first = sustained.first else { return "Alles in Ordnung" }
+            guard let first = sustained.first else { return L10n.tr("Alles in Ordnung") }
             let others = sustained.count - 1
-            return others > 0 ? "\(first.title) und \(others) weitere" : first.title
+            return others > 0 ? L10n.tr("%@ und %d weitere", first.title, others) : first.title
         }
     }
 
-    public static let hungriestAppTitle = "Ressourcenhungrigste App"
-    public static let hungriestAppRangeTitle = "Ressourcenhungrigste Apps im Zeitraum"
+    public static var hungriestAppTitle: String { L10n.tr("Ressourcenhungrigste App") }
+    public static var hungriestAppRangeTitle: String { L10n.tr("Ressourcenhungrigste Apps im Zeitraum") }
 
     /// Stimmung des Hundes zum Gesamtstatus; die Alarmtexte selbst bleiben sachlich.
     public static func mood(for level: HealthLevel) -> String {
         switch level {
-        case .unknown: "Hixup schläft tief – keine Daten."
-        case .ok: "Alles ruhig, Hixup döst."
-        case .warning: "Hixup spitzt die Ohren."
-        case .critical: "Hixup schlägt an!"
+        case .unknown: L10n.tr("Hixup schläft tief – keine Daten.")
+        case .ok: L10n.tr("Alles ruhig, Hixup döst.")
+        case .warning: L10n.tr("Hixup spitzt die Ohren.")
+        case .critical: L10n.tr("Hixup schlägt an!")
         }
     }
 
@@ -51,16 +51,16 @@ public enum StatusPresentation {
     }
 
     public static func thresholdText(_ violation: ActiveViolation) -> String {
-        let direction = violation.comparison == .above ? "über" : "unter"
+        let direction = violation.comparison == .above ? L10n.tr("über") : L10n.tr("unter")
         return "\(direction) \(format(violation.threshold, metric: violation.metric))"
     }
 
     public static func label(for reason: OffenderReason) -> String {
         switch reason {
-        case .cpu: "CPU"
-        case .energy: "Energie"
-        case .memory: "Speicher"
-        case .wakeups: "Wakeups"
+        case .cpu: L10n.tr("CPU")
+        case .energy: L10n.tr("Energie")
+        case .memory: L10n.tr("Speicher")
+        case .wakeups: L10n.tr("Wakeups")
         }
     }
 

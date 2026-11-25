@@ -6,7 +6,10 @@ struct DashboardView: View {
     let status: StatusModel
     @Bindable var model: DashboardModel
 
+    @Environment(LanguageModel.self) private var languageModel
+
     var body: some View {
+        let _ = languageModel.language
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 header
@@ -30,19 +33,19 @@ struct DashboardView: View {
     private var subtitle: String {
         let mood = StatusPresentation.mood(for: status.level)
         guard let name = status.status.flatMap(StatusPresentation.hungriestApp(in:)) else { return mood }
-        return "\(mood) Am hungrigsten: \(name)"
+        return "\(mood) " + L10n.tr("Am hungrigsten: %@", name)
     }
 
     private var header: some View {
         HStack(spacing: 12) {
             Circle().fill(status.level.color).frame(width: 16, height: 16)
             VStack(alignment: .leading) {
-                Text(status.status.map(StatusPresentation.headline(for:)) ?? "Keine aktuellen Daten")
+                Text(status.status.map(StatusPresentation.headline(for:)) ?? L10n.tr("Keine aktuellen Daten"))
                     .font(.title2.weight(.semibold))
                 Text(subtitle).foregroundStyle(.secondary)
             }
             Spacer()
-            Picker("Zeitraum", selection: $model.range) {
+            Picker(L10n.tr("Zeitraum"), selection: $model.range) {
                 ForEach(HistoryRange.allCases, id: \.self) { Text($0.title).tag($0) }
             }
             .pickerStyle(.segmented)
@@ -56,7 +59,7 @@ struct DashboardView: View {
     private func charts(_ history: History) -> some View {
         VStack(spacing: 12) {
             HistoryChart(
-                title: "Freier Speicher", unit: "%",
+                title: L10n.tr("Freier Speicher"), unit: "%",
                 points: history.points.map { ($0.timestamp, $0.availableMemoryPercent) },
                 tint: .blue, alerts: history.alerts, markers: history.markers,
                 threshold: 15, domain: 0...100, focusedTime: model.focusedTime
@@ -77,7 +80,7 @@ struct DashboardView: View {
     private func cpuChart(_ history: History) -> some View {
         if history.points.contains(where: { $0.systemCPUPercent != nil }) {
             HistoryChart(
-                title: "CPU gesamt", unit: "%",
+                title: L10n.tr("CPU gesamt"), unit: "%",
                 points: history.points.compactMap { point in point.systemCPUPercent.map { (point.timestamp, $0) } },
                 tint: .purple, alerts: history.alerts, markers: history.markers,
                 threshold: AgentSettings.load(from: HixupPaths.settingsURL).systemCPUPercent,
@@ -85,7 +88,7 @@ struct DashboardView: View {
             )
         } else {
             HistoryChart(
-                title: "CPU (Top-Prozesse)", unit: "%",
+                title: L10n.tr("CPU (Top-Prozesse)"), unit: "%",
                 points: history.points.map { ($0.timestamp, $0.cpuPercent) },
                 tint: .purple, alerts: history.alerts, markers: history.markers,
                 focusedTime: model.focusedTime
@@ -137,7 +140,7 @@ struct DashboardView: View {
             Entry(
                 id: "a-\(alert.ruleID)-\(alert.timestamp.timeIntervalSince1970)", time: alert.timestamp,
                 title: alert.detail.map { "\(alert.title): \($0)" } ?? alert.title,
-                subtitle: String(format: "%.1f (Schwelle %.0f)", alert.value, alert.threshold),
+                subtitle: L10n.tr("%.1f (Schwelle %.0f)", alert.value, alert.threshold),
                 icon: alert.severity == .critical ? "exclamationmark.octagon.fill" : "exclamationmark.triangle.fill",
                 color: alert.severity == .critical ? .red : .orange
             )
@@ -145,7 +148,7 @@ struct DashboardView: View {
         let markers = history.markers.map {
             Entry(
                 id: "m-\($0.timestamp.timeIntervalSince1970)", time: $0.timestamp,
-                title: $0.note ?? "Marker", subtitle: "Manuell gesetzt",
+                title: $0.note ?? L10n.tr("Marker"), subtitle: L10n.tr("Manuell gesetzt"),
                 icon: "flag.fill", color: .blue
             )
         }
@@ -155,9 +158,9 @@ struct DashboardView: View {
     private func timeline(_ history: History) -> some View {
         let items = entries(history)
         return VStack(alignment: .leading, spacing: 8) {
-            Text("Ereignisse").font(.headline)
+            Text(L10n.tr("Ereignisse")).font(.headline)
             if items.isEmpty {
-                Text("Keine Alerts oder Marker im Zeitraum").foregroundStyle(.secondary)
+                Text(L10n.tr("Keine Alerts oder Marker im Zeitraum")).foregroundStyle(.secondary)
             }
             ForEach(items) { item in
                 Button {
@@ -180,7 +183,7 @@ struct DashboardView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityHint("Hebt den Zeitpunkt in den Diagrammen hervor")
+                .accessibilityHint(L10n.tr("Hebt den Zeitpunkt in den Diagrammen hervor"))
             }
         }
         .padding(12)

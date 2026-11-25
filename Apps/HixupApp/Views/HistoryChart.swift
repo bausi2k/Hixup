@@ -18,7 +18,7 @@ struct HistoryChart: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title).font(.headline)
             if points.isEmpty {
-                Text("Keine Daten im Zeitraum").font(.caption).foregroundStyle(.secondary)
+                Text(L10n.tr("Keine Daten im Zeitraum")).font(.caption).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, minHeight: 120)
             } else {
                 chart.frame(height: 140)

@@ -22,6 +22,6 @@ struct UserNotificationAlertNotifier: AlertNotifier {
         let measured = String(format: "%.0f", alert.value)
         let threshold = String(format: "%.0f", alert.threshold)
         let cause = alert.detail.map { " (\($0))" } ?? ""
-        return "Messwert \(measured), Schwelle \(threshold)\(cause)"
+        return L10n.tr("Messwert %@, Schwelle %@%@", measured, threshold, cause)
     }
 }

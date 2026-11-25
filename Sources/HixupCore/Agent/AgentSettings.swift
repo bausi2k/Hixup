@@ -24,6 +24,8 @@ public struct AgentSettings: Codable, Equatable, Sendable {
     public var memoryMinimumSeconds: TimeInterval
     /// Sekunden, die hohe CPU-Last oder hoher Energieverbrauch anhalten muss (10...3600).
     public var loadMinimumSeconds: TimeInterval
+    /// Sprache der Oberflaeche in App und Agent.
+    public var language: AppLanguage
 
     public init(
         sampleInterval: TimeInterval = 5,
@@ -35,8 +37,10 @@ public struct AgentSettings: Codable, Equatable, Sendable {
         processEnergyWatts: Double = 8,
         memoryMinimumSeconds: TimeInterval = 60,
         loadMinimumSeconds: TimeInterval = 120,
-        systemCPUPercent: Double = 90
+        systemCPUPercent: Double = 90,
+        language: AppLanguage = .system
     ) {
+        self.language = language
         self.systemCPUPercent = systemCPUPercent
         self.memoryLowPercent = memoryLowPercent
         self.processCPUPercent = processCPUPercent
@@ -62,6 +66,7 @@ public struct AgentSettings: Codable, Equatable, Sendable {
         memoryMinimumSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .memoryMinimumSeconds) ?? fallback.memoryMinimumSeconds
         loadMinimumSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .loadMinimumSeconds) ?? fallback.loadMinimumSeconds
         systemCPUPercent = try container.decodeIfPresent(Double.self, forKey: .systemCPUPercent) ?? fallback.systemCPUPercent
+        language = try container.decodeIfPresent(AppLanguage.self, forKey: .language) ?? fallback.language
     }
 
     public func clamped() -> AgentSettings {
@@ -75,7 +80,8 @@ public struct AgentSettings: Codable, Equatable, Sendable {
             processEnergyWatts: min(max(processEnergyWatts, 0.5), 100),
             memoryMinimumSeconds: min(max(memoryMinimumSeconds, 10), 3_600),
             loadMinimumSeconds: min(max(loadMinimumSeconds, 10), 3_600),
-            systemCPUPercent: min(max(systemCPUPercent, 30), 100)
+            systemCPUPercent: min(max(systemCPUPercent, 30), 100),
+            language: language
         )
     }
 

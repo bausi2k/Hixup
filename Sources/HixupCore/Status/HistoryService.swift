@@ -15,9 +15,9 @@ public enum HistoryRange: String, CaseIterable, Sendable {
 
     public var title: String {
         switch self {
-        case .hour: "1 Std."
-        case .day: "24 Std."
-        case .twoWeeks: "14 Tage"
+        case .hour: L10n.tr("1 Std.")
+        case .day: L10n.tr("24 Std.")
+        case .twoWeeks: L10n.tr("14 Tage")
         }
     }
 }

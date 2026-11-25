@@ -1,3 +1,4 @@
+import HixupCore
 import Observation
 import ServiceManagement
 
@@ -18,11 +19,11 @@ final class AgentServiceController {
 
     var statusDescription: String {
         switch status {
-        case .enabled: "Hintergrunddienst läuft"
-        case .requiresApproval: "Freigabe in den Systemeinstellungen nötig"
-        case .notRegistered: "Hintergrunddienst aus"
-        case .notFound: "Agent nicht gefunden"
-        @unknown default: "Unbekannter Status"
+        case .enabled: L10n.tr("Hintergrunddienst läuft")
+        case .requiresApproval: L10n.tr("Freigabe in den Systemeinstellungen nötig")
+        case .notRegistered: L10n.tr("Hintergrunddienst aus")
+        case .notFound: L10n.tr("Agent nicht gefunden")
+        @unknown default: L10n.tr("Unbekannter Status")
         }
     }
 
