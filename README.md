@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Status-Modell ist fertig. Menueleisten-Popover ist fertig. Naechster Schritt: Dashboard-Fenster (Phase 4).
+Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Status-Modell ist fertig. Menueleisten-Popover und Dashboard sind fertig. Naechster Schritt: Einstellungen und Hotkey fuer Marker.
 
 ## Architektur
 
@@ -108,3 +108,7 @@ Die urspruenglichen Diagnose-Scripts bleiben vorerst als Referenz im Repo `scrip
 ## Menueleisten-Popover
 
 Das Symbol in der Menueleiste zeigt den Zustand (Puls normal, Dreieck bei Warnung, Achteck bei Kritisch). Ein Klick oeffnet das Popover mit Status, Verlaufskacheln, ueberschrittenen Schwellen und den groessten Verursachern. Die App liest dafuer alle 5 s ueber `StatusService` die Datenbank, die der Agent befuellt; Logik und Texte liegen in `HixupCore`, die Views in `Apps/HixupApp/Views`.
+
+## Dashboard
+
+"Dashboard öffnen" im Popover zeigt Verlaufsdiagramme (Speicher, CPU, Energie), Verursacher und Ereignisse fuer 1 Std., 24 Std. oder 14 Tage. `HistoryService` duennt lange Zeitraeume SQL-seitig auf ca. 400 Punkte aus; die Verursacher-Rangliste basiert auf diesen Stichproben.

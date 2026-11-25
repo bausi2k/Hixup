@@ -54,6 +54,33 @@ public final class SQLiteSnapshotStore: SnapshotStore, @unchecked Sendable {
         }
     }
 
+    public func sampledSnapshots(from start: Date, to end: Date, maxPoints: Int) throws -> [Snapshot] {
+        let total = try database.withStatement(
+            "SELECT COUNT(*) FROM snapshots WHERE timestamp >= ? AND timestamp <= ?"
+        ) { statement in
+            sqlite3_bind_double(statement, 1, start.timeIntervalSince1970)
+            sqlite3_bind_double(statement, 2, end.timeIntervalSince1970)
+            try database.step(statement, expecting: SQLITE_ROW)
+            return Int(sqlite3_column_int64(statement, 0))
+        }
+        let stride = max(1, Int((Double(total) / Double(max(maxPoints, 1))).rounded(.up)))
+
+        return try database.withStatement(
+            "SELECT payload FROM snapshots WHERE timestamp >= ? AND timestamp <= ? AND id % ? = 0 ORDER BY timestamp ASC, id ASC"
+        ) { statement in
+            sqlite3_bind_double(statement, 1, start.timeIntervalSince1970)
+            sqlite3_bind_double(statement, 2, end.timeIntervalSince1970)
+            sqlite3_bind_int64(statement, 3, Int64(stride))
+
+            var result: [Snapshot] = []
+            while sqlite3_step(statement) == SQLITE_ROW {
+                guard let data = SQLiteDatabase.decodeBlob(from: statement, column: 0) else { continue }
+                result.append(try decoder.decode(Snapshot.self, from: data))
+            }
+            return result
+        }
+    }
+
     @discardableResult
     public func purge(olderThan date: Date) throws -> Int {
         try database.withStatement("DELETE FROM snapshots WHERE timestamp < ?") { statement in

@@ -5,6 +5,7 @@ import SwiftUI
 struct StatusPopover: View {
     let model: StatusModel
     let service: AgentServiceController
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -113,6 +114,10 @@ struct StatusPopover: View {
                 Button("Systemeinstellungen öffnen") { service.openLoginItemSettings() }
             }
             HStack {
+                Button("Dashboard öffnen") {
+                    openWindow(id: "dashboard")
+                    NSApplication.shared.activate(ignoringOtherApps: true)
+                }
                 Spacer()
                 Button("Beenden") { NSApplication.shared.terminate(nil) }
             }

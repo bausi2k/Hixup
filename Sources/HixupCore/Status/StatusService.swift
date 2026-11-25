@@ -6,6 +6,13 @@ public struct TrendPoint: Equatable, Sendable {
     public let availableMemoryPercent: Double
     public let cpuPercent: Double
     public let energyWatts: Double
+
+    init(snapshot: Snapshot) {
+        timestamp = snapshot.timestamp
+        availableMemoryPercent = snapshot.memory.availablePercent
+        cpuPercent = snapshot.processes.reduce(0) { $0 + $1.cpuPercent }
+        energyWatts = snapshot.processes.reduce(0) { $0 + $1.energyWatts }
+    }
 }
 
 /// Liest Snapshots und Events aus den Stores und liefert den aktuellen Status samt Verlauf.
@@ -38,13 +45,6 @@ public struct StatusService: Sendable {
     }
 
     public func trend(now: Date = Date(), window: TimeInterval = 600) throws -> [TrendPoint] {
-        try snapshots.snapshots(from: now.addingTimeInterval(-window), to: now).map { snapshot in
-            TrendPoint(
-                timestamp: snapshot.timestamp,
-                availableMemoryPercent: snapshot.memory.availablePercent,
-                cpuPercent: snapshot.processes.reduce(0) { $0 + $1.cpuPercent },
-                energyWatts: snapshot.processes.reduce(0) { $0 + $1.energyWatts }
-            )
-        }
+        try snapshots.snapshots(from: now.addingTimeInterval(-window), to: now).map(TrendPoint.init(snapshot:))
     }
 }
