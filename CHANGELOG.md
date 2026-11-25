@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Hunde-Wording
+
+- "Größte Verursacher" heißt jetzt "Ressourcenhungrigste App" (Popover und Dashboard)
+- Statuszeile mit Hundestimmung: "Alles ruhig, Hixup döst." / "Hixup spitzt die Ohren." / "Hixup schlägt an!", dazu die hungrigste App
+- Alarm-Benachrichtigungen bleiben sachlich
+- 144 Tests
+
 ### Empfindlichkeit nach Hunderasse
 
 - `SensitivityLevel`: Labrador (gelassen), Border Collie (Standard), Dobermann (wachsam) setzen alle Schwellen und Mindestdauern auf einmal
