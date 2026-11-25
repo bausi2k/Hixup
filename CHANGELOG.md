@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Empfindlichkeit nach Hunderasse
+
+- `SensitivityLevel`: Labrador (gelassen), Border Collie (Standard), Dobermann (wachsam) setzen alle Schwellen und Mindestdauern auf einmal
+- Einstellungen: Schieberegler mit drei Stufen; die Feineinstellung bleibt aufklappbar, abweichende Werte zeigen "Individuell"
+- 141 Tests
+
 ## [0.3.0] – Regeln, Gesamt-CPU und Spitzen
 
 Konfigurierbare Regel-Schwellen, Gesamt-CPU-Metrik inkl. `kernel_task`, Lastspitzen im Dashboard sowie CI-, Dependabot- und Release-Pipeline.

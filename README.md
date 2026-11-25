@@ -128,3 +128,7 @@ Im Einstellungsfenster stellst Du ein, ab wann Hixup warnt (freier Speicher, Pro
 ## Gesamt-CPU
 
 Neben der Last einzelner Prozesse misst der Agent die Gesamtauslastung aller Kerne. Sie enthaelt auch Last, die keinem erfassten Prozess zugeordnet ist (z. B. `kernel_task`, das ueber die Prozessliste nicht sichtbar ist). Die Regel "Gesamt-CPU-Last hoch" warnt, wenn sie laenger ueber der Schwelle liegt.
+
+## Empfindlichkeit
+
+In den Einstellungen waehlt ein Schieberegler die Alarm-Schwellen: Labrador (gelassen), Border Collie (Standard) oder Dobermann (wachsam). Die Feineinstellung der einzelnen Werte bleibt moeglich.
