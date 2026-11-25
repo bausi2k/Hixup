@@ -27,13 +27,19 @@ struct StatusPopover: View {
 
     // MARK: - Abschnitte
 
+    private var subtitle: String {
+        let mood = StatusPresentation.mood(for: model.level)
+        guard let name = model.status.flatMap(StatusPresentation.hungriestApp(in:)) else { return mood }
+        return "\(mood) Am hungrigsten: \(name)"
+    }
+
     private var header: some View {
         HStack(spacing: 10) {
             Circle().fill(model.level.color).frame(width: 12, height: 12)
             VStack(alignment: .leading, spacing: 1) {
                 Text(model.status.map(StatusPresentation.headline(for:)) ?? "Keine aktuellen Daten")
                     .font(.headline)
-                Text(model.level.title).font(.caption).foregroundStyle(.secondary)
+                Text(subtitle).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
         }
@@ -99,13 +105,13 @@ struct StatusPopover: View {
 
     private func offenders(_ offenders: [Offender]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Größte Verursacher").font(.subheadline.weight(.semibold))
+            Text(StatusPresentation.hungriestAppTitle).font(.subheadline.weight(.semibold))
             let maxScore = max(offenders.map(\.score).max() ?? 1, 0.001)
             ForEach(offenders, id: \.name) { offender in
                 OffenderRow(offender: offender, relativeScore: offender.score / maxScore)
             }
             if offenders.isEmpty {
-                Text("Keine Daten").font(.caption).foregroundStyle(.secondary)
+                Text("Kein Hunger in Sicht").font(.caption).foregroundStyle(.secondary)
             }
         }
     }

@@ -68,3 +68,33 @@ private func status(_ level: HealthLevel, violations: [ActiveViolation] = []) ->
         #expect(StatusPresentation.label(for: .wakeups) == "Wakeups")
     }
 }
+
+@Suite struct HundeWordingTests {
+    private func offender(_ name: String) -> Offender {
+        Offender(
+            name: name, processCount: 1, cpuPercent: 10, energyWatts: 1, wakeupsPerSecond: 0,
+            residentBytes: 0, score: 1, reasons: []
+        )
+    }
+
+    @Test func moodDescribesEveryLevelInDogTerms() {
+        #expect(StatusPresentation.mood(for: .ok) == "Alles ruhig, Hixup döst.")
+        #expect(StatusPresentation.mood(for: .warning) == "Hixup spitzt die Ohren.")
+        #expect(StatusPresentation.mood(for: .critical) == "Hixup schlägt an!")
+        #expect(StatusPresentation.mood(for: .unknown) == "Hixup schläft tief – keine Daten.")
+    }
+
+    @Test func hungriestAppIsNamedFromTheTopOffender() {
+        let result = SystemStatus(
+            level: .ok, timestamp: nil, memory: nil, violations: [],
+            offenders: [offender("Chrome"), offender("Slack")], recentAlerts: []
+        )
+        #expect(StatusPresentation.hungriestApp(in: result) == "Chrome")
+        #expect(StatusPresentation.hungriestApp(in: status(.ok)) == nil)
+    }
+
+    @Test func sectionTitlesUseTheNewWording() {
+        #expect(StatusPresentation.hungriestAppTitle == "Ressourcenhungrigste App")
+        #expect(StatusPresentation.hungriestAppRangeTitle == "Ressourcenhungrigste Apps im Zeitraum")
+    }
+}

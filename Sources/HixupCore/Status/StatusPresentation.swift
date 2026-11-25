@@ -18,6 +18,24 @@ public enum StatusPresentation {
         }
     }
 
+    public static let hungriestAppTitle = "Ressourcenhungrigste App"
+    public static let hungriestAppRangeTitle = "Ressourcenhungrigste Apps im Zeitraum"
+
+    /// Stimmung des Hundes zum Gesamtstatus; die Alarmtexte selbst bleiben sachlich.
+    public static func mood(for level: HealthLevel) -> String {
+        switch level {
+        case .unknown: "Hixup schläft tief – keine Daten."
+        case .ok: "Alles ruhig, Hixup döst."
+        case .warning: "Hixup spitzt die Ohren."
+        case .critical: "Hixup schlägt an!"
+        }
+    }
+
+    /// Name der Prozessgruppe mit der hoechsten Belastung, falls vorhanden.
+    public static func hungriestApp(in status: SystemStatus) -> String? {
+        status.offenders.first?.name
+    }
+
     /// SF-Symbol fuer die Menueleiste (monochrom, Zustand ueber die Form erkennbar).
     public static func symbolName(for level: HealthLevel) -> String {
         switch level {

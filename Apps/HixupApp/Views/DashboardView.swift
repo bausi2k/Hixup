@@ -27,13 +27,19 @@ struct DashboardView: View {
 
     // MARK: - Kopf
 
+    private var subtitle: String {
+        let mood = StatusPresentation.mood(for: status.level)
+        guard let name = status.status.flatMap(StatusPresentation.hungriestApp(in:)) else { return mood }
+        return "\(mood) Am hungrigsten: \(name)"
+    }
+
     private var header: some View {
         HStack(spacing: 12) {
             Circle().fill(status.level.color).frame(width: 16, height: 16)
             VStack(alignment: .leading) {
                 Text(status.status.map(StatusPresentation.headline(for:)) ?? "Keine aktuellen Daten")
                     .font(.title2.weight(.semibold))
-                Text(status.level.title).foregroundStyle(.secondary)
+                Text(subtitle).foregroundStyle(.secondary)
             }
             Spacer()
             Picker("Zeitraum", selection: $model.range) {
@@ -91,7 +97,7 @@ struct DashboardView: View {
 
     private func offenders(_ offenders: [Offender]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Größte Verursacher im Zeitraum").font(.headline)
+            Text(StatusPresentation.hungriestAppRangeTitle).font(.headline)
             if offenders.isEmpty {
                 Text("Keine Daten").foregroundStyle(.secondary)
             } else {
