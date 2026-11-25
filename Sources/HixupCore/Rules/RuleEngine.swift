@@ -7,12 +7,21 @@ public final class RuleEngine: @unchecked Sendable {
         var lastAlert: Date?
     }
 
-    private let rules: [Rule]
+    private var rules: [Rule]
     private let lock = NSLock()
     private var states: [String: State] = [:]
 
     public init(rules: [Rule]) {
         self.rules = rules
+    }
+
+    /// Ersetzt die Regeln. Der Zustand bleibt nur fuer unveraenderte Regeln erhalten.
+    public func update(rules newRules: [Rule]) {
+        lock.lock()
+        defer { lock.unlock() }
+        let unchanged = Set(newRules.filter { rules.contains($0) }.map(\.id))
+        states = states.filter { unchanged.contains($0.key) }
+        rules = newRules
     }
 
     public func evaluate(_ snapshot: Snapshot) -> [Alert] {

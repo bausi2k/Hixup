@@ -8,6 +8,7 @@ public actor AgentRunner {
     private let store: any SnapshotStore
     private let events: any EventStore
     private let engine: RuleEngine
+    private let rulesForSettings: (@Sendable (AgentSettings) -> [Rule])?
     private let notifier: any AlertNotifier
     private let sleeper: any Sleeper
     private let loadSettings: @Sendable () -> AgentSettings
@@ -20,6 +21,7 @@ public actor AgentRunner {
         store: any SnapshotStore,
         events: any EventStore,
         engine: RuleEngine,
+        rulesForSettings: (@Sendable (AgentSettings) -> [Rule])? = nil,
         notifier: any AlertNotifier,
         sleeper: any Sleeper = TaskSleeper(),
         loadSettings: @escaping @Sendable () -> AgentSettings,
@@ -30,6 +32,7 @@ public actor AgentRunner {
         self.store = store
         self.events = events
         self.engine = engine
+        self.rulesForSettings = rulesForSettings
         self.notifier = notifier
         self.sleeper = sleeper
         self.loadSettings = loadSettings
@@ -54,6 +57,7 @@ public actor AgentRunner {
         let settings = loadSettings()
         let date = now()
 
+        if let rulesForSettings { engine.update(rules: rulesForSettings(settings)) }
         purgeIfDue(at: date, retentionDays: settings.retentionDays)
 
         let snapshot: Snapshot

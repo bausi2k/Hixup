@@ -2,7 +2,15 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Release-Pipeline
+## [Unreleased] – Regel-Einstellungen
+
+- Schwellen und Mindestdauern der Standardregeln in den Einstellungen: Speicher knapp (%), Prozess-CPU (%), Prozess-Energie (W), Mindestdauer fuer Speicher und fuer CPU/Energie; Button "Standardwerte"
+- `settings.json` bekommt die neuen Felder; aeltere Dateien laufen mit Standardwerten weiter; Werte werden begrenzt
+- Der Agent baut die Regeln bei jeder Messung aus den Einstellungen; `RuleEngine.update(rules:)` behaelt den Zustand nur fuer unveraenderte Regeln
+- Die App bewertet den Status mit denselben Regeln (`StatusService(evaluatorProvider:)`), damit Popover und Benachrichtigung uebereinstimmen
+- 118 Tests; Ende-zu-Ende geprueft: Speicherschwelle auf 90 % loeste im laufenden Agent einen Alarm aus
+
+## Release-Pipeline
 
 - Dependabot (woechentlich) fuer GitHub Actions und Swift-Pakete
 - CI (`.github/workflows/ci.yml`): `swift test` und unsignierter Release-Build auf `macos-26`

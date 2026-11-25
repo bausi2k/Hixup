@@ -12,13 +12,33 @@ public struct AgentSettings: Codable, Equatable, Sendable {
     public var watchedProcessNames: [String]
     /// Anzahl der Prozesse mit der hoechsten CPU-Last pro Snapshot (1...50).
     public var topProcessCount: Int
+    /// Alarm, wenn der freie Speicher unter diesen Prozentwert faellt (1...90).
+    public var memoryLowPercent: Double
+    /// Alarm, wenn ein Prozess ueber diesem CPU-Wert (Prozent eines Kerns) liegt (50...1600).
+    public var processCPUPercent: Double
+    /// Alarm, wenn ein Prozess ueber dieser Leistungsaufnahme in Watt liegt (0,5...100).
+    public var processEnergyWatts: Double
+    /// Sekunden, die niedriger Speicher anhalten muss (10...3600).
+    public var memoryMinimumSeconds: TimeInterval
+    /// Sekunden, die hohe CPU-Last oder hoher Energieverbrauch anhalten muss (10...3600).
+    public var loadMinimumSeconds: TimeInterval
 
     public init(
         sampleInterval: TimeInterval = 5,
         retentionDays: Int = 14,
         watchedProcessNames: [String] = [],
-        topProcessCount: Int = 10
+        topProcessCount: Int = 10,
+        memoryLowPercent: Double = 15,
+        processCPUPercent: Double = 200,
+        processEnergyWatts: Double = 8,
+        memoryMinimumSeconds: TimeInterval = 60,
+        loadMinimumSeconds: TimeInterval = 120
     ) {
+        self.memoryLowPercent = memoryLowPercent
+        self.processCPUPercent = processCPUPercent
+        self.processEnergyWatts = processEnergyWatts
+        self.memoryMinimumSeconds = memoryMinimumSeconds
+        self.loadMinimumSeconds = loadMinimumSeconds
         self.sampleInterval = sampleInterval
         self.retentionDays = retentionDays
         self.watchedProcessNames = watchedProcessNames
@@ -32,6 +52,11 @@ public struct AgentSettings: Codable, Equatable, Sendable {
         retentionDays = try container.decodeIfPresent(Int.self, forKey: .retentionDays) ?? fallback.retentionDays
         watchedProcessNames = try container.decodeIfPresent([String].self, forKey: .watchedProcessNames) ?? fallback.watchedProcessNames
         topProcessCount = try container.decodeIfPresent(Int.self, forKey: .topProcessCount) ?? fallback.topProcessCount
+        memoryLowPercent = try container.decodeIfPresent(Double.self, forKey: .memoryLowPercent) ?? fallback.memoryLowPercent
+        processCPUPercent = try container.decodeIfPresent(Double.self, forKey: .processCPUPercent) ?? fallback.processCPUPercent
+        processEnergyWatts = try container.decodeIfPresent(Double.self, forKey: .processEnergyWatts) ?? fallback.processEnergyWatts
+        memoryMinimumSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .memoryMinimumSeconds) ?? fallback.memoryMinimumSeconds
+        loadMinimumSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .loadMinimumSeconds) ?? fallback.loadMinimumSeconds
     }
 
     public func clamped() -> AgentSettings {
@@ -39,7 +64,12 @@ public struct AgentSettings: Codable, Equatable, Sendable {
             sampleInterval: min(max(sampleInterval, 1), 300),
             retentionDays: min(max(retentionDays, 1), 365),
             watchedProcessNames: watchedProcessNames,
-            topProcessCount: min(max(topProcessCount, 1), 50)
+            topProcessCount: min(max(topProcessCount, 1), 50),
+            memoryLowPercent: min(max(memoryLowPercent, 1), 90),
+            processCPUPercent: min(max(processCPUPercent, 50), 1_600),
+            processEnergyWatts: min(max(processEnergyWatts, 0.5), 100),
+            memoryMinimumSeconds: min(max(memoryMinimumSeconds, 10), 3_600),
+            loadMinimumSeconds: min(max(loadMinimumSeconds, 10), 3_600)
         )
     }
 

@@ -23,7 +23,12 @@ final class StatusModel {
             )
             let path = HixupPaths.databaseURL.path
             let events = try SQLiteEventStore(path: path)
-            service = StatusService(snapshots: try SQLiteSnapshotStore(path: path), events: events)
+            service = StatusService(
+                snapshots: try SQLiteSnapshotStore(path: path), events: events,
+                evaluatorProvider: {
+                    StatusEvaluator(rules: DefaultRules.rules(for: AgentSettings.load(from: HixupPaths.settingsURL)))
+                }
+            )
             recorder = MarkerRecorder(events: events)
         } catch {
             service = nil

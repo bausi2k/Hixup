@@ -6,6 +6,11 @@ struct SettingsView: View {
     @State private var retentionDays: Int
     @State private var topCount: Int
     @State private var watched: String
+    @State private var memoryLow: Double
+    @State private var cpuPercent: Double
+    @State private var energyWatts: Double
+    @State private var memorySeconds: Double
+    @State private var loadSeconds: Double
     @State private var message: String?
 
     init() {
@@ -13,6 +18,11 @@ struct SettingsView: View {
         _interval = State(initialValue: settings.sampleInterval)
         _retentionDays = State(initialValue: settings.retentionDays)
         _topCount = State(initialValue: settings.topProcessCount)
+        _memoryLow = State(initialValue: settings.memoryLowPercent)
+        _cpuPercent = State(initialValue: settings.processCPUPercent)
+        _energyWatts = State(initialValue: settings.processEnergyWatts)
+        _memorySeconds = State(initialValue: settings.memoryMinimumSeconds)
+        _loadSeconds = State(initialValue: settings.loadMinimumSeconds)
         _watched = State(initialValue: settings.watchedProcessNames.joined(separator: "\n"))
     }
 
@@ -28,6 +38,24 @@ struct SettingsView: View {
                 Stepper(value: $retentionDays, in: 1...365) {
                     LabeledContent("Aufbewahrung", value: "\(retentionDays) Tage")
                 }
+            }
+            Section("Schwellen") {
+                Stepper(value: $memoryLow, in: 1...90, step: 1) {
+                    LabeledContent("Speicher knapp unter", value: "\(Int(memoryLow)) %")
+                }
+                Stepper(value: $memorySeconds, in: 10...3_600, step: 10) {
+                    LabeledContent("… für mindestens", value: "\(Int(memorySeconds)) s")
+                }
+                Stepper(value: $cpuPercent, in: 50...1_600, step: 25) {
+                    LabeledContent("Prozess-CPU über", value: "\(Int(cpuPercent)) %")
+                }
+                Stepper(value: $energyWatts, in: 0.5...100, step: 0.5) {
+                    LabeledContent("Prozess-Energie über", value: String(format: "%.1f W", energyWatts))
+                }
+                Stepper(value: $loadSeconds, in: 10...3_600, step: 10) {
+                    LabeledContent("CPU/Energie für mindestens", value: "\(Int(loadSeconds)) s")
+                }
+                Button("Standardwerte") { resetThresholds() }
             }
             Section("Immer erfassen") {
                 TextEditor(text: $watched)
@@ -56,7 +84,9 @@ struct SettingsView: View {
     private func save() {
         let settings = AgentSettings(
             sampleInterval: interval, retentionDays: retentionDays,
-            watchedProcessNames: AgentSettings.parseWatchedNames(watched), topProcessCount: topCount
+            watchedProcessNames: AgentSettings.parseWatchedNames(watched), topProcessCount: topCount,
+            memoryLowPercent: memoryLow, processCPUPercent: cpuPercent, processEnergyWatts: energyWatts,
+            memoryMinimumSeconds: memorySeconds, loadMinimumSeconds: loadSeconds
         ).clamped()
         do {
             try settings.save(to: HixupPaths.settingsURL)
@@ -64,5 +94,14 @@ struct SettingsView: View {
         } catch {
             message = "Fehler: \(error.localizedDescription)"
         }
+    }
+
+    private func resetThresholds() {
+        let defaults = AgentSettings.defaults
+        memoryLow = defaults.memoryLowPercent
+        cpuPercent = defaults.processCPUPercent
+        energyWatts = defaults.processEnergyWatts
+        memorySeconds = defaults.memoryMinimumSeconds
+        loadSeconds = defaults.loadMinimumSeconds
     }
 }
