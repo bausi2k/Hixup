@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Eigenständige App
+
+- Hixup startet als normale App mit Dock-Symbol und öffnet das Dashboard als Hauptfenster
+- Einstellungen: "Im Dock anzeigen" und "Menüleisten-Symbol anzeigen"; der Wechsel gilt sofort (`NSApplication.setActivationPolicy`). Mindestens eines von beiden bleibt aktiv (`AppVisibility`), damit die App erreichbar bleibt
+- Ohne Dock-Symbol startet Hixup wie bisher nur in der Menüleiste
+- 155 Tests
+
 ### Englische Version
 
 - `L10n`: prozessweite Lokalisierung (Deutsch/Englisch) über `.strings`-Dateien im Core; der deutsche Text dient als Schlüssel, fehlende Übersetzungen fallen auf Deutsch zurück

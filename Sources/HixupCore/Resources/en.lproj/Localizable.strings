@@ -83,3 +83,7 @@
 "System" = "System";
 "Deutsch" = "Deutsch";
 "English" = "English";
+"Darstellung" = "Appearance";
+"Im Dock anzeigen" = "Show in Dock";
+"Menüleisten-Symbol anzeigen" = "Show menu bar icon";
+"Mindestens eines von beiden bleibt aktiv, damit Hixup erreichbar bleibt." = "At least one of the two stays on so Hixup remains reachable.";

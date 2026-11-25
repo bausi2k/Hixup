@@ -32,6 +32,7 @@ struct SettingsView: View {
     }
 
     @Environment(LanguageModel.self) private var languageModel
+    @Environment(VisibilityModel.self) private var visibility
 
     var body: some View {
         let _ = languageModel.language
@@ -47,6 +48,16 @@ struct SettingsView: View {
                     Text("Deutsch").tag(AppLanguage.de)
                     Text("English").tag(AppLanguage.en)
                 }
+            }
+            Section(L10n.tr("Darstellung")) {
+                Toggle(L10n.tr("Im Dock anzeigen"), isOn: Binding(
+                    get: { visibility.value.showInDock }, set: { visibility.setDock($0) }
+                ))
+                Toggle(L10n.tr("Menüleisten-Symbol anzeigen"), isOn: Binding(
+                    get: { visibility.value.showMenuBarItem }, set: { visibility.setMenuBar($0) }
+                ))
+                Text(L10n.tr("Mindestens eines von beiden bleibt aktiv, damit Hixup erreichbar bleibt."))
+                    .font(.caption).foregroundStyle(.secondary)
             }
             Section(L10n.tr("Messung")) {
                 Stepper(value: $interval, in: 1...300, step: 1) {

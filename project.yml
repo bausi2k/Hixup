@@ -50,7 +50,7 @@ targets:
       path: Apps/HixupApp/Info.plist
       properties:
         CFBundleDisplayName: Hixup
-        LSUIElement: true
+        LSUIElement: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: casa.gruber.hixup
