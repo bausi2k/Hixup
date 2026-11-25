@@ -15,3 +15,12 @@ public struct Snapshot: Codable, Equatable, Sendable {
         self.processes = processes
     }
 }
+
+extension Snapshot {
+    /// Grobe Gesamtbelastung zum Auswaehlen von Spitzen: CPU (100 % = ein Kern), Energie und Speicherdruck.
+    var loadScore: Double {
+        let cpu = systemCPUPercent ?? processes.reduce(0) { $0 + $1.cpuPercent }
+        let energy = processes.reduce(0) { $0 + $1.energyWatts }
+        return cpu / 100 + energy / 10 + (100 - memory.availablePercent) / 100
+    }
+}

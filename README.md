@@ -101,7 +101,7 @@ Pro Prozess erfasst Hixup die vom System geschaetzte Energie (`proc_pid_rusage`,
 
 ## Bekannte Einschraenkungen
 
-- `kernel_task` (PID 0) ist ueber `libproc` ohne Root nicht lesbar und fehlt in der Prozessliste. Eine Gesamt-CPU-Metrik folgt spaeter.
+- `kernel_task` (PID 0) ist ueber `libproc` ohne Root nicht lesbar und fehlt in der Prozessliste; seine Last erscheint in der Gesamt-CPU.
 
 Die urspruenglichen Diagnose-Scripts bleiben vorerst als Referenz im Repo `scripts`.
 
@@ -111,7 +111,7 @@ Das Symbol in der Menueleiste zeigt den Zustand (Puls normal, Dreieck bei Warnun
 
 ## Dashboard
 
-"Dashboard öffnen" im Popover zeigt Verlaufsdiagramme (Speicher, CPU, Energie), Verursacher und Ereignisse fuer 1 Std., 24 Std. oder 14 Tage. `HistoryService` duennt lange Zeitraeume SQL-seitig auf ca. 400 Punkte aus; die Verursacher-Rangliste basiert auf diesen Stichproben.
+"Dashboard öffnen" im Popover zeigt Verlaufsdiagramme (Speicher, CPU, Energie), Verursacher und Ereignisse fuer 1 Std., 24 Std. oder 14 Tage. `HistoryService` duennt lange Zeitraeume SQL-seitig auf ca. 400 Punkte aus. Das Diagramm behaelt je Zeitabschnitt den am hoechsten belasteten Snapshot (kurze Spitzen bleiben sichtbar); die Verursacher-Rangliste nutzt gleichmaessig verteilte Stichproben, damit sie nicht nach oben verzerrt wird.
 
 ## Einstellungen und Marker
 
