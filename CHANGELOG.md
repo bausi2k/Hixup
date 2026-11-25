@@ -2,7 +2,14 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Store-Erweiterungen
+## [Unreleased] – Status-Modell
+
+- `StatusEvaluator`: Gesamtstatus (unbekannt, ok, Warnung, kritisch), aktive Regelverstoesse mit Beginn und Dauer, Verursacher-Rangliste
+- Prozesse gleichen Namens werden zusammengefasst und ueber 30 s gemittelt; Gruende CPU, Energie, Speicher, Wakeups
+- Zustandslos: laesst sich in der App aus der Datenbank ableiten
+- 83 Tests; mit echten Daten des Agents geprueft
+
+## Store-Erweiterungen
 
 - SQLite im WAL-Modus (`busy_timeout` 5 s): paralleles Lesen und Schreiben durch App und Agent
 - `SQLiteEventStore`: Alerts und manuelle Marker persistent, mit Zeitraumabfrage und Purge
