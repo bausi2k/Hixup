@@ -51,6 +51,15 @@ public struct AgentSettings: Codable, Equatable, Sendable {
         return settings.clamped()
     }
 
+    /// Zerlegt einen Freitext (Komma oder Zeilenumbruch) in eindeutige Prozessnamen.
+    public static func parseWatchedNames(_ text: String) -> [String] {
+        var seen = Set<String>()
+        return text
+            .split(whereSeparator: { $0 == "," || $0.isNewline })
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty && seen.insert($0).inserted }
+    }
+
     public func save(to url: URL) throws {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

@@ -11,6 +11,7 @@ final class StatusModel {
     private(set) var loadError: String?
 
     private let service: StatusService?
+    private let recorder: MarkerRecorder?
     private let refreshInterval: Duration
     private var task: Task<Void, Never>?
 
@@ -21,18 +22,27 @@ final class StatusModel {
                 at: HixupPaths.supportDirectory, withIntermediateDirectories: true
             )
             let path = HixupPaths.databaseURL.path
-            service = StatusService(
-                snapshots: try SQLiteSnapshotStore(path: path),
-                events: try SQLiteEventStore(path: path)
-            )
+            let events = try SQLiteEventStore(path: path)
+            service = StatusService(snapshots: try SQLiteSnapshotStore(path: path), events: events)
+            recorder = MarkerRecorder(events: events)
         } catch {
             service = nil
+            recorder = nil
             loadError = error.localizedDescription
         }
         start()
     }
 
     var level: HealthLevel { status?.level ?? .unknown }
+
+    func addMarker() {
+        do {
+            try recorder?.mark()
+            loadError = nil
+        } catch {
+            loadError = error.localizedDescription
+        }
+    }
 
     func refresh() {
         guard let service else { return }

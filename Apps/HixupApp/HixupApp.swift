@@ -18,5 +18,9 @@ struct HixupApp: App {
         Window("Hixup", id: "dashboard") {
             DashboardView(status: model, model: dashboard)
         }
+
+        Settings {
+            SettingsView()
+        }
     }
 }

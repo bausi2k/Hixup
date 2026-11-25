@@ -2,7 +2,15 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Dashboard
+## [Unreleased] – Einstellungen und Hotkey
+
+- Einstellungsfenster (Popover -> "Einstellungen"): Messintervall (Standard 5 s), Prozesse pro Messung, Aufbewahrung, immer erfasste Prozesse; schreibt `settings.json`, der Agent uebernimmt es bei der naechsten Messung
+- Globaler Hotkey ⌃⌥⌘H setzt einen Marker (Carbon `RegisterEventHotKey`, keine Berechtigung noetig); laeuft im Agent, also auch bei beendeter App
+- Button "Marker setzen" im Popover
+- `MarkerRecorder` und `AgentSettings.parseWatchedNames` im Core, getestet
+- 108 Tests; der Hotkey selbst ist nicht automatisch testbar (Tastendruck braucht Bedienungshilfen-Rechte)
+
+## Dashboard
 
 - Dashboard-Fenster (aus dem Popover per "Dashboard öffnen"): Statuskopf, Zeitraum 1 Std. / 24 Std. / 14 Tage
 - Diagramme fuer freien Speicher (mit Schwelle), CPU und Energie; Alerts (rot/orange) und Marker (blau) als senkrechte Linien
