@@ -13,6 +13,8 @@ struct SettingsView: View {
     @State private var memorySeconds: Double
     @State private var loadSeconds: Double
     @State private var message: String?
+    @State private var lastLevel: SensitivityLevel
+    @State private var showFineTuning = false
 
     init() {
         let settings = AgentSettings.load(from: HixupPaths.settingsURL)
@@ -25,11 +27,16 @@ struct SettingsView: View {
         _systemCPU = State(initialValue: settings.systemCPUPercent)
         _memorySeconds = State(initialValue: settings.memoryMinimumSeconds)
         _loadSeconds = State(initialValue: settings.loadMinimumSeconds)
+        _lastLevel = State(initialValue: SensitivityLevel.matching(settings) ?? .borderCollie)
         _watched = State(initialValue: settings.watchedProcessNames.joined(separator: "\n"))
     }
 
     var body: some View {
         Form {
+            Section("Empfindlichkeit") { sensitivity }
+            Section {
+                DisclosureGroup("Feineinstellung der Schwellen", isExpanded: $showFineTuning) { thresholds }
+            }
             Section("Messung") {
                 Stepper(value: $interval, in: 1...300, step: 1) {
                     LabeledContent("Messintervall", value: "\(Int(interval)) s")
@@ -40,27 +47,6 @@ struct SettingsView: View {
                 Stepper(value: $retentionDays, in: 1...365) {
                     LabeledContent("Aufbewahrung", value: "\(retentionDays) Tage")
                 }
-            }
-            Section("Schwellen") {
-                Stepper(value: $memoryLow, in: 1...90, step: 1) {
-                    LabeledContent("Speicher knapp unter", value: "\(Int(memoryLow)) %")
-                }
-                Stepper(value: $memorySeconds, in: 10...3_600, step: 10) {
-                    LabeledContent("… für mindestens", value: "\(Int(memorySeconds)) s")
-                }
-                Stepper(value: $cpuPercent, in: 50...1_600, step: 25) {
-                    LabeledContent("Prozess-CPU über", value: "\(Int(cpuPercent)) %")
-                }
-                Stepper(value: $energyWatts, in: 0.5...100, step: 0.5) {
-                    LabeledContent("Prozess-Energie über", value: String(format: "%.1f W", energyWatts))
-                }
-                Stepper(value: $systemCPU, in: 30...100, step: 5) {
-                    LabeledContent("Gesamt-CPU über", value: "\(Int(systemCPU)) %")
-                }
-                Stepper(value: $loadSeconds, in: 10...3_600, step: 10) {
-                    LabeledContent("CPU/Energie für mindestens", value: "\(Int(loadSeconds)) s")
-                }
-                Button("Standardwerte") { resetThresholds() }
             }
             Section("Immer erfassen") {
                 TextEditor(text: $watched)
@@ -86,6 +72,81 @@ struct SettingsView: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 
+    // MARK: - Empfindlichkeit
+
+    private var currentSettings: AgentSettings {
+        AgentSettings(
+            memoryLowPercent: memoryLow, processCPUPercent: cpuPercent, processEnergyWatts: energyWatts,
+            memoryMinimumSeconds: memorySeconds, loadMinimumSeconds: loadSeconds, systemCPUPercent: systemCPU
+        )
+    }
+
+    private var matchingLevel: SensitivityLevel? { SensitivityLevel.matching(currentSettings) }
+
+    private var sensitivity: some View {
+        let levels = SensitivityLevel.allCases
+        let slider = Binding<Double>(
+            get: { Double(levels.firstIndex(of: matchingLevel ?? lastLevel) ?? 1) },
+            set: { select(levels[Int($0.rounded())]) }
+        )
+        return VStack(alignment: .leading, spacing: 6) {
+            Slider(value: slider, in: 0...Double(levels.count - 1), step: 1)
+                .accessibilityLabel("Empfindlichkeit")
+                .accessibilityValue((matchingLevel ?? lastLevel).title)
+            HStack {
+                ForEach(levels, id: \.self) { level in
+                    Text(level.title)
+                        .font(.caption.weight(level == matchingLevel ? .bold : .regular))
+                        .frame(maxWidth: .infinity, alignment: alignment(for: level))
+                }
+            }
+            Text(matchingLevel?.summary ?? "Individuell: eigene Werte aus der Feineinstellung.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private func alignment(for level: SensitivityLevel) -> Alignment {
+        switch level {
+        case .labrador: .leading
+        case .borderCollie: .center
+        case .dobermann: .trailing
+        }
+    }
+
+    private func select(_ level: SensitivityLevel) {
+        lastLevel = level
+        let preset = level.applied(to: currentSettings)
+        memoryLow = preset.memoryLowPercent
+        cpuPercent = preset.processCPUPercent
+        energyWatts = preset.processEnergyWatts
+        systemCPU = preset.systemCPUPercent
+        memorySeconds = preset.memoryMinimumSeconds
+        loadSeconds = preset.loadMinimumSeconds
+    }
+
+    @ViewBuilder
+    private var thresholds: some View {
+                Stepper(value: $memoryLow, in: 1...90, step: 1) {
+                    LabeledContent("Speicher knapp unter", value: "\(Int(memoryLow)) %")
+                }
+                Stepper(value: $memorySeconds, in: 10...3_600, step: 10) {
+                    LabeledContent("… für mindestens", value: "\(Int(memorySeconds)) s")
+                }
+                Stepper(value: $cpuPercent, in: 50...1_600, step: 25) {
+                    LabeledContent("Prozess-CPU über", value: "\(Int(cpuPercent)) %")
+                }
+                Stepper(value: $energyWatts, in: 0.5...100, step: 0.5) {
+                    LabeledContent("Prozess-Energie über", value: String(format: "%.1f W", energyWatts))
+                }
+                Stepper(value: $systemCPU, in: 30...100, step: 5) {
+                    LabeledContent("Gesamt-CPU über", value: "\(Int(systemCPU)) %")
+                }
+                Stepper(value: $loadSeconds, in: 10...3_600, step: 10) {
+                    LabeledContent("CPU/Energie für mindestens", value: "\(Int(loadSeconds)) s")
+                }
+                Button("Standardwerte (Border Collie)") { select(.borderCollie) }
+                }
+
     private func save() {
         let settings = AgentSettings(
             sampleInterval: interval, retentionDays: retentionDays,
@@ -100,15 +161,5 @@ struct SettingsView: View {
         } catch {
             message = "Fehler: \(error.localizedDescription)"
         }
-    }
-
-    private func resetThresholds() {
-        let defaults = AgentSettings.defaults
-        memoryLow = defaults.memoryLowPercent
-        cpuPercent = defaults.processCPUPercent
-        energyWatts = defaults.processEnergyWatts
-        systemCPU = defaults.systemCPUPercent
-        memorySeconds = defaults.memoryMinimumSeconds
-        loadSeconds = defaults.loadMinimumSeconds
     }
 }
