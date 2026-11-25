@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Naechster Schritt: Status-Modell und Oberflaeche (Phase 4).
+Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Status-Modell ist fertig. Naechster Schritt: Menueleisten-Popover und Dashboard (Phase 4).
 
 ## Architektur
 
@@ -85,6 +85,15 @@ Hinweis zur Team-ID: Sie steht im Feld `OU` des Zertifikats, nicht in der Klamme
 - `SQLiteEventStore`: ausgeloeste Alerts (JSON) und manuelle Marker (Zeitstempel, optionale Notiz) fuer den Verlauf in der Oberflaeche. Der Agent schreibt jeden Alert hinein; die Retention gilt auch hier.
 - Beide Stores teilen sich eine Datei (`hixup.sqlite`) und nutzen den **WAL-Modus** mit `busy_timeout`: Die App kann lesen, waehrend der Agent schreibt.
 - `RuleEngine`: Regel = Metrik, Schwellwert, Mindestdauer, Cooldown. Die Zeit stammt aus den Snapshots, nicht aus einer Uhr. Standardregeln: Speicher unter 15 % fuer 60 s (critical), Prozess ueber 200 % CPU fuer 120 s (warning), Prozess ueber 8 W geschaetzte Leistung fuer 120 s (warning).
+
+## Status-Modell
+
+`StatusEvaluator` berechnet aus dem Verlauf der Snapshots den aktuellen Zustand fuer Popover und Dashboard. Er ist zustandslos und liest nur Snapshots; die App braucht den internen Zustand der `RuleEngine` des Agents nicht.
+
+- **Gesamtstatus** (`HealthLevel`): `critical` oder `warning`, sobald eine Regel ihre Mindestdauer erreicht hat; sonst `ok`. `unknown`, wenn keine Daten vorliegen oder der neueste Snapshot aelter als 30 s ist (z. B. Dienst aus).
+- **Aktive Verstoesse:** alle aktuell verletzten Regeln mit Wert, Schwelle, Verursacher, Beginn und Dauer. Noch nicht anhaltende Verstoesse werden gelistet (`isSustained == false`), heben den Status aber nicht an.
+- **Verursacher:** Prozesse gleichen Namens werden zusammengefasst und ueber ein Fenster von 30 s gemittelt. Die Rangliste ordnet nach einem Score (Summe der Verhaeltnisse zu den Referenzwerten). Als Grund (`reasons`) gelten CPU ab 150 %, Energie ab 5 W, Speicher ab 4 GiB und Wakeups ab 1000/s.
+- Die letzten Alerts werden durchgereicht.
 
 ## Energie
 
