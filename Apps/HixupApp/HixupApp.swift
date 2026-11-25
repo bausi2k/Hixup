@@ -5,6 +5,7 @@ import SwiftUI
 struct HixupApp: App {
     @State private var service = AgentServiceController()
     @State private var model = StatusModel()
+    @State private var dashboard = DashboardModel()
 
     var body: some Scene {
         MenuBarExtra {
@@ -13,5 +14,9 @@ struct HixupApp: App {
             Image(systemName: StatusPresentation.symbolName(for: model.level))
         }
         .menuBarExtraStyle(.window)
+
+        Window("Hixup", id: "dashboard") {
+            DashboardView(status: model, model: dashboard)
+        }
     }
 }

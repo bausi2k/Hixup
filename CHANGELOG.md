@@ -2,7 +2,16 @@
 
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/bausi2k)
 
-## [Unreleased] – Menueleisten-Popover
+## [Unreleased] – Dashboard
+
+- Dashboard-Fenster (aus dem Popover per "Dashboard öffnen"): Statuskopf, Zeitraum 1 Std. / 24 Std. / 14 Tage
+- Diagramme fuer freien Speicher (mit Schwelle), CPU und Energie; Alerts (rot/orange) und Marker (blau) als senkrechte Linien
+- Verursacher ueber den gewaehlten Zeitraum als Balkendiagramm
+- Ereignisliste: Klick auf einen Alert oder Marker hebt den Zeitpunkt in allen Diagrammen hervor
+- `HistoryService` und `SnapshotStore.sampledSnapshots` (SQL-seitig ausgeduennt, max. ca. 400 Punkte); lange Zeitraeume zeigen dadurch Stichproben, kurze Spitzen koennen fehlen
+- 103 Tests
+
+## Menueleisten-Popover
 
 - Klick auf das Menueleisten-Symbol zeigt ein Popover: Status mit Ampelfarbe und Schlagzeile, Kacheln mit Verlauf (Speicher, CPU, Energie), ueberschrittene Schwellen, groesste Verursacher mit Balken und Gruenden
 - Das Menueleisten-Symbol wechselt bei Warnung und Kritisch die Form (monochromes SF Symbol)
