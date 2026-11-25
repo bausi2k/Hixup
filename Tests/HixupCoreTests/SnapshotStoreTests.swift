@@ -69,4 +69,35 @@ func makeSnapshot(
             try SQLiteSnapshotStore(path: "/nonexistent-dir/hixup.sqlite")
         }
     }
+
+    @Test func fileDatabaseUsesWriteAheadLogging() throws {
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("hixup-wal-\(UUID().uuidString).sqlite").path
+        defer {
+            for suffix in ["", "-wal", "-shm"] { try? FileManager.default.removeItem(atPath: path + suffix) }
+        }
+
+        #expect(try SQLiteSnapshotStore(path: path).journalMode == "wal")
+    }
+
+    @Test func readerAndWriterCanWorkConcurrentlyOnTheSameFile() async throws {
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("hixup-concurrent-\(UUID().uuidString).sqlite").path
+        defer {
+            for suffix in ["", "-wal", "-shm"] { try? FileManager.default.removeItem(atPath: path + suffix) }
+        }
+        let writer = try SQLiteSnapshotStore(path: path)
+        let reader = try SQLiteSnapshotStore(path: path)
+
+        let writes = Task.detached {
+            for index in 0..<200 { try writer.append(makeSnapshot(at: TimeInterval(index))) }
+        }
+        let reads = Task.detached {
+            for _ in 0..<200 { _ = try reader.count() }
+        }
+
+        try await writes.value
+        try await reads.value
+        #expect(try reader.count() == 200)
+    }
 }

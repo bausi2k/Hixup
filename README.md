@@ -6,7 +6,7 @@ Native macOS-App (macOS 26+), die Lags und Hick-ups diagnostiziert: Ein Hintergr
 
 ## Status
 
-Phase 3b von 6: Agent, Xcode-Projekt und Dienst-Registrierung geprueft. App-Icon vorhanden. Naechster Schritt: Oberflaeche (Phase 4).
+Agent, Dienst-Registrierung, App-Icon, Energie-Collector und Event-Store sind fertig. Naechster Schritt: Status-Modell und Oberflaeche (Phase 4).
 
 ## Architektur
 
@@ -81,7 +81,9 @@ Hinweis zur Team-ID: Sie steht im Feld `OU` des Zertifikats, nicht in der Klamme
 
 ## Storage und Regeln
 
-- `SQLiteSnapshotStore`: Snapshots (Speicher + Top-Prozesse) als JSON in SQLite, Zeitraumabfrage, `purge(olderThan:)` fuer die Retention (geplant: 14 Tage).
+- `SQLiteSnapshotStore`: Snapshots (Speicher + Top-Prozesse) als JSON in SQLite, Zeitraumabfrage, `purge(olderThan:)` fuer die Retention (Standard 14 Tage).
+- `SQLiteEventStore`: ausgeloeste Alerts (JSON) und manuelle Marker (Zeitstempel, optionale Notiz) fuer den Verlauf in der Oberflaeche. Der Agent schreibt jeden Alert hinein; die Retention gilt auch hier.
+- Beide Stores teilen sich eine Datei (`hixup.sqlite`) und nutzen den **WAL-Modus** mit `busy_timeout`: Die App kann lesen, waehrend der Agent schreibt.
 - `RuleEngine`: Regel = Metrik, Schwellwert, Mindestdauer, Cooldown. Die Zeit stammt aus den Snapshots, nicht aus einer Uhr. Standardregeln: Speicher unter 15 % fuer 60 s (critical), Prozess ueber 200 % CPU fuer 120 s (warning), Prozess ueber 8 W geschaetzte Leistung fuer 120 s (warning).
 
 ## Energie
