@@ -120,3 +120,7 @@ Das Einstellungsfenster schreibt `~/Library/Application Support/Hixup/settings.j
 ## Release
 
 `scripts/build-release.sh` baut die App und packt `dist/Hixup-<Version>.dmg`. Ohne Zertifikat ist das DMG unsigniert und nur zum Testen gedacht; die Registrierung des Hintergrunddienstes funktioniert so nicht zuverlaessig. Fuer die oeffentliche Verteilung noetig: Developer-ID-Zertifikat, `TEAM_ID`, `DEVELOPER_ID` und ein `notarytool`-Profil (`NOTARY_PROFILE`). Pushes von `v*`-Tags loesen den Release-Workflow aus; Dependabot haelt Actions und Swift-Pakete aktuell.
+
+## Schwellen anpassen
+
+Im Einstellungsfenster stellst Du ein, ab wann Hixup warnt (freier Speicher, Prozess-CPU, Prozess-Energie) und wie lange der Zustand anhalten muss. Der Agent uebernimmt Aenderungen bei der naechsten Messung; Popover und Dashboard nutzen dieselben Werte.

@@ -19,7 +19,7 @@ public struct TrendPoint: Equatable, Sendable {
 public struct StatusService: Sendable {
     private let snapshots: any SnapshotStore
     private let events: any EventStore
-    private let evaluator: StatusEvaluator
+    private let evaluatorProvider: @Sendable () -> StatusEvaluator
     private let lookback: TimeInterval
     private let alertHistory: TimeInterval
 
@@ -31,9 +31,21 @@ public struct StatusService: Sendable {
         evaluator: StatusEvaluator = StatusEvaluator(),
         lookback: TimeInterval = 600, alertHistory: TimeInterval = 86_400
     ) {
+        self.init(
+            snapshots: snapshots, events: events, evaluatorProvider: { evaluator },
+            lookback: lookback, alertHistory: alertHistory
+        )
+    }
+
+    /// - Parameter evaluatorProvider: Wird bei jeder Abfrage aufgerufen, z. B. um geaenderte Regeln zu uebernehmen.
+    public init(
+        snapshots: any SnapshotStore, events: any EventStore,
+        evaluatorProvider: @escaping @Sendable () -> StatusEvaluator,
+        lookback: TimeInterval = 600, alertHistory: TimeInterval = 86_400
+    ) {
         self.snapshots = snapshots
         self.events = events
-        self.evaluator = evaluator
+        self.evaluatorProvider = evaluatorProvider
         self.lookback = lookback
         self.alertHistory = alertHistory
     }
@@ -41,7 +53,7 @@ public struct StatusService: Sendable {
     public func current(now: Date = Date()) throws -> SystemStatus {
         let recent = try snapshots.snapshots(from: now.addingTimeInterval(-lookback), to: now)
         let alerts = try events.alerts(from: now.addingTimeInterval(-alertHistory), to: now)
-        return evaluator.evaluate(snapshots: recent, recentAlerts: alerts, now: now)
+        return evaluatorProvider().evaluate(snapshots: recent, recentAlerts: alerts, now: now)
     }
 
     public func trend(now: Date = Date(), window: TimeInterval = 600) throws -> [TrendPoint] {

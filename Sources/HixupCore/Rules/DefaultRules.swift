@@ -1,6 +1,31 @@
 public enum DefaultRules {
     public static let all: [Rule] = [memoryLow, cpuSustained, energySustained]
 
+    /// Die Standardregeln mit Schwellen und Mindestdauern aus den Einstellungen.
+    public static func rules(for settings: AgentSettings) -> [Rule] {
+        let settings = settings.clamped()
+        return [
+            Rule(
+                id: memoryLow.id, title: memoryLow.title, severity: memoryLow.severity,
+                metric: memoryLow.metric, comparison: memoryLow.comparison,
+                threshold: settings.memoryLowPercent,
+                minimumDuration: settings.memoryMinimumSeconds, cooldown: memoryLow.cooldown
+            ),
+            Rule(
+                id: cpuSustained.id, title: cpuSustained.title, severity: cpuSustained.severity,
+                metric: cpuSustained.metric, comparison: cpuSustained.comparison,
+                threshold: settings.processCPUPercent,
+                minimumDuration: settings.loadMinimumSeconds, cooldown: cpuSustained.cooldown
+            ),
+            Rule(
+                id: energySustained.id, title: energySustained.title, severity: energySustained.severity,
+                metric: energySustained.metric, comparison: energySustained.comparison,
+                threshold: settings.processEnergyWatts,
+                minimumDuration: settings.loadMinimumSeconds, cooldown: energySustained.cooldown
+            )
+        ]
+    }
+
     public static let memoryLow = Rule(
         id: "memory-low", title: "Freier Speicher knapp", severity: .critical,
         metric: .availableMemoryPercent, comparison: .below, threshold: 15,

@@ -74,6 +74,7 @@ private final class LimitedSleeper: Sleeper, @unchecked Sendable {
 private func makeRunner(
     samples: [Result<Snapshot, CollectorError>],
     rules: [Rule] = [],
+    rulesForSettings: (@Sendable (AgentSettings) -> [Rule])? = nil,
     store: SpyStore = SpyStore(),
     events: SpyEventStore = SpyEventStore(),
     notifier: SpyNotifier = SpyNotifier(),
@@ -83,7 +84,7 @@ private func makeRunner(
     errors: Box<[String]> = Box([])
 ) -> AgentRunner {
     AgentRunner(
-        sampler: QueueSampler(samples), store: store, events: events, engine: RuleEngine(rules: rules),
+        sampler: QueueSampler(samples), store: store, events: events, engine: RuleEngine(rules: rules), rulesForSettings: rulesForSettings,
         notifier: notifier, sleeper: sleeper, loadSettings: settings, now: now,
         reportError: { errors.value.append(String(describing: $0)) }
     )
@@ -96,6 +97,23 @@ private let lowMemory = Rule(
 )
 
 @Suite struct AgentRunnerTests {
+    @Test func rulesAreRebuiltFromTheSettingsOnEveryTick() async {
+        let notifier = SpyNotifier()
+        var settings = AgentSettings.defaults
+        settings.memoryLowPercent = 60
+        settings.memoryMinimumSeconds = 10
+        let captured = settings
+        let runner = makeRunner(
+            samples: [.success(makeSnapshot(at: 0, available: 50)), .success(makeSnapshot(at: 10, available: 50))],
+            rulesForSettings: DefaultRules.rules(for:), notifier: notifier, settings: { captured }
+        )
+
+        await runner.tick()
+        await runner.tick()
+
+        #expect(notifier.alerts.value.map(\.ruleID) == ["memory-low"])
+    }
+
     @Test func tickStoresTheSampledSnapshot() async {
         let store = SpyStore()
         let snapshot = makeSnapshot(at: 10)
