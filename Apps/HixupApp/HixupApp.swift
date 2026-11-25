@@ -7,9 +7,10 @@ struct HixupApp: App {
     @State private var model = StatusModel()
     @State private var dashboard = DashboardModel()
     @State private var language = LanguageModel()
+    @State private var visibility = VisibilityModel()
 
     var body: some Scene {
-        MenuBarExtra {
+        MenuBarExtra(isInserted: Binding(get: { visibility.value.showMenuBarItem }, set: { visibility.setMenuBar($0) })) {
             StatusPopover(model: model, service: service).environment(language)
         } label: {
             Image(systemName: StatusPresentation.symbolName(for: model.level))
@@ -19,9 +20,10 @@ struct HixupApp: App {
         Window("Hixup", id: "dashboard") {
             DashboardView(status: model, model: dashboard).environment(language)
         }
+        .defaultLaunchBehavior(visibility.value.showInDock ? .presented : .suppressed)
 
         Settings {
-            SettingsView().environment(language)
+            SettingsView().environment(language).environment(visibility)
         }
     }
 }
