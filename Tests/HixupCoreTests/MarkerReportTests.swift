@@ -179,11 +179,49 @@ private func build(_ input: MarkerReportInput, language: AppLanguage = .de) -> S
         #expect(text.contains("Mac15,3"))
     }
 
+    @Test func insightContainsMetricsAndFindingsForOneMarker() throws {
+        let snapshots = try SQLiteSnapshotStore(path: ":memory:")
+        let events = try SQLiteEventStore(path: ":memory:")
+        let marker = Marker(timestamp: date(1_000), note: nil, detail: detail())
+        try snapshots.append(snapshot(900, available: 40))
+        try snapshots.append(snapshot(1_000, available: 9))
+        let service = MarkerReportService(snapshots: snapshots, events: events, settings: { .defaults }, system: { system })
+
+        let insight = try service.insight(for: marker, language: .de)
+
+        #expect(insight.sampleCount == 2)
+        #expect(insight.metrics.freeMemory.peak == 9)
+        #expect(insight.findings.first?.cause == .memory)
+    }
+
     @Test func serviceHandlesAnEmptyMarkerList() throws {
         let snapshots = try SQLiteSnapshotStore(path: ":memory:")
         let events = try SQLiteEventStore(path: ":memory:")
         let service = MarkerReportService(snapshots: snapshots, events: events, settings: { .defaults }, system: { system })
 
         #expect(try service.report(for: [], language: .de).contains("Keine Marker im Zeitraum."))
+    }
+}
+
+@Suite struct MarkerReportAssessmentTests {
+    private func report(includeAssessment: Bool, language: AppLanguage = .de) -> String {
+        let marker = Marker(timestamp: date(1_000), note: nil, detail: detail())
+        let input = MarkerReportInput(markers: [marker], snapshots: [snapshot(1_000)], alerts: [], settings: .defaults, system: system)
+        return MarkerReportBuilder(language: language, timeZone: utc, includeAssessment: includeAssessment).build(input)
+    }
+
+    @Test func assessmentIsIncludedByDefaultAndMarkedAsHeuristic() {
+        let text = report(includeAssessment: true)
+        #expect(text.contains("Vorläufige Einschätzung von Hixup"))
+        #expect(text.contains("kann falsch sein"))
+        #expect(text.contains("Speicherknappheit"))
+    }
+
+    @Test func assessmentCanBeLeftOut() {
+        #expect(!report(includeAssessment: false).contains("Vorläufige Einschätzung"))
+    }
+
+    @Test func englishAssessmentHeading() {
+        #expect(report(includeAssessment: true, language: .en).contains("Preliminary assessment by Hixup"))
     }
 }

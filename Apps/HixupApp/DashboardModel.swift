@@ -45,8 +45,12 @@ final class DashboardModel {
     }
 
     /// Markdown-Bericht fuer eine KI-Analyse der gegebenen Marker.
-    func report(for markers: [Marker]) -> String? {
-        try? reports?.report(for: markers)
+    func report(for markers: [Marker], includeAssessment: Bool = true) -> String? {
+        try? reports?.report(for: markers, includeAssessment: includeAssessment)
+    }
+
+    func insight(for marker: Marker) -> MarkerInsight? {
+        try? reports?.insight(for: marker)
     }
 
     func refresh() {

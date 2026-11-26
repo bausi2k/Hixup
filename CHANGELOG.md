@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Marker-Details und Einschätzung
+
+- Klick auf einen Marker im Dashboard öffnet ein Detailfenster: Tiefenmessung und Messwert-Tabelle, mögliche Ursachen mit Einstufung (Hoch / Mittel / Niedrig) und Begründung, Vorschau des KI-Berichts mit Zeichenzahl sowie Kopieren und Sichern
+- Das Fenster erklärt, was an die KI geht: Hixup sendet nichts selbst; der Bericht verlässt die App nur per Kopieren oder Sichern; enthalten sind Prozessnamen, Messwerte und Systemdaten, nicht enthalten Dateiinhalte, Dateinamen und Benutzername
+- `MarkerDiagnosis`: regelbasierte Heuristik für Speicherknappheit, CPU-Last, Energie, Thermik, Netzwerk und Hixup selbst; Schwellen aus den Einstellungen; ohne Auffälligkeit erscheint "Keine Ursache in den Messwerten sichtbar"
+- Die Einschätzung steht auch im exportierten Bericht ("heuristisch, kann falsch sein") und lässt sich im Detailfenster abschalten
+- `MarkerMetrics` teilen sich Bericht und Detailfenster; 215 Tests
+
 ### Fix: Prozessnamen und Hixup in der Rangliste
 
 - Prozessnamen kommen aus dem Programmpfad statt aus `proc_name` und sind nicht mehr auf ca. 31 Zeichen gekürzt (z. B. "Google Chrome Helper (Renderer)")

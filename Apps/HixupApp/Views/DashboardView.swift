@@ -9,6 +9,7 @@ struct DashboardView: View {
     @Bindable var model: DashboardModel
     @State private var eventFilter = EventFilter.all
     @State private var exportMessage: String?
+    @State private var selectedMarker: Marker?
 
     @Environment(LanguageModel.self) private var languageModel
 
@@ -27,6 +28,7 @@ struct DashboardView: View {
             .padding(20)
         }
         .frame(minWidth: 760, minHeight: 640)
+        .sheet(item: $selectedMarker) { MarkerDetailView(marker: $0, model: model) }
     }
 
     // MARK: - Kopf
@@ -216,6 +218,7 @@ struct DashboardView: View {
     private func entryRow(_ item: Entry, history: History) -> some View {
         Button {
             model.focusedTime = model.focusedTime == item.time ? nil : item.time
+            selectedMarker = history.markers.first { $0.timestamp == item.time }
         } label: {
             HStack(alignment: .firstTextBaseline) {
                 Image(systemName: item.icon).foregroundStyle(item.color)
