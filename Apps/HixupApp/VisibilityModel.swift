@@ -24,12 +24,15 @@ final class VisibilityModel {
     func setMenuBar(_ enabled: Bool) { update(value.settingMenuBar(enabled)) }
 
     private func update(_ new: AppVisibility) {
+        // MenuBarExtra ruft den Setter laufend mit dem aktuellen Wert auf; ohne Aenderung darf nichts passieren.
+        guard new != value else { return }
+        let dockWasHidden = !value.showInDock
         value = new
         let defaults = UserDefaults.standard
         defaults.set(new.showInDock, forKey: Self.dockKey)
         defaults.set(new.showMenuBarItem, forKey: Self.menuBarKey)
         applyActivationPolicy()
-        if new.showInDock { NSApplication.shared.activate(ignoringOtherApps: true) }
+        if dockWasHidden && new.showInDock { NSApplication.shared.activate(ignoringOtherApps: true) }
     }
 
     private func applyActivationPolicy() {
