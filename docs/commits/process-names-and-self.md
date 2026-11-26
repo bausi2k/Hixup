@@ -4,4 +4,4 @@ Branch: bugfix/process-names-and-self (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (siehe git log) | fix: full process names and hide Hixup from the ranking |
+| 99d8527 | fix: full process names and hide Hixup from the ranking |
