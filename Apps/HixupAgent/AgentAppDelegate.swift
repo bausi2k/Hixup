@@ -3,10 +3,12 @@ import Carbon.HIToolbox
 import HixupCore
 import OSLog
 
+@MainActor
 final class AgentAppDelegate: NSObject, NSApplicationDelegate {
     private let logger = Logger(subsystem: "casa.gruber.hixup.agent", category: "agent")
     private var runTask: Task<Void, Never>?
     private var hotKey: HotKeyMonitor?
+    private let notePanel = MarkerNotePanel()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let notifier = UserNotificationAlertNotifier()
@@ -47,6 +49,13 @@ final class AgentAppDelegate: NSObject, NSApplicationDelegate {
                 let marker = try recorder.mark()
                 Task { await recorder.attachDetail(to: marker) }
                 NSSound(named: "Pop")?.play()
+                Task { @MainActor in
+                    self.notePanel.show { text in
+                        do { try recorder.updateNote(text, for: marker) } catch {
+                            logger.error("Notiz fehlgeschlagen: \(String(describing: error), privacy: .public)")
+                        }
+                    }
+                }
             } catch {
                 logger.error("Marker fehlgeschlagen: \(String(describing: error), privacy: .public)")
             }

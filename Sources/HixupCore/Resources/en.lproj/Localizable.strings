@@ -203,3 +203,6 @@
 "Speicherdruck kritisch" = "Memory pressure critical";
 "Speicherdruck-Alarm" = "Memory pressure alerts";
 "Alarm, wenn macOS den Speicherdruck als erhöht oder kritisch meldet." = "Alert when macOS reports elevated or critical memory pressure.";
+"Was hakt? Enter speichert, Esc schließt" = "What's wrong? Enter saves, Esc closes";
+"Notiz hinzufügen" = "Add a note";
+"Notiz gespeichert" = "Note saved";

@@ -164,3 +164,7 @@ Neben dem freien Speicher überwacht Hixup den Speicherdruck, den macOS selbst m
 ## Ressourcenverbrauch
 
 Hixup soll selbst kaum Last erzeugen: Der Hintergrunddienst braucht rund 0,2 % CPU und 9 MB, die App im Ruhezustand rund 0,3 % CPU und 30 MB. Popover und Dashboard lesen nur, solange sie sichtbar sind, und Diagramme werden aus vorberechneten Spalten gelesen statt aus dem JSON der Snapshots.
+
+## Notiz zum Marker
+
+Nach dem Hotkey fragt ein kleines Feld "Was hakt?" nach einem Stichwort. Die Notiz lässt sich später im Marker-Detailfenster ändern und fließt in den Bericht für die KI-Analyse ein.
