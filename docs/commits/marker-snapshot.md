@@ -4,4 +4,4 @@ Branch: feature/marker-snapshot (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (siehe git log) | feat: capture system detail when setting a marker |
+| c3c4e51 | feat: capture system detail when setting a marker |
