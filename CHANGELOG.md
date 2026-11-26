@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.7.0] – Hixup auf Samtpfoten
+
+Speicherdruck als Alarm und ein deutlich ressourcenschonenderer Betrieb: im Ruhezustand rund 0,3 % CPU und 30 MB statt 2,3 % und 55–75 MB.
+
 ### Ressourcenschonender Betrieb
 
 - Gemessen im Ruhezustand (nur Menüleiste): CPU von rund 2,3 % auf rund 0,3 %, Speicher von 55–75 MB auf rund 30 MB (Release-Build); der Hintergrunddienst lag schon bei 0,2 % CPU und 9 MB
