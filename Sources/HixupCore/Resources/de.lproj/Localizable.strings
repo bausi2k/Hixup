@@ -97,3 +97,12 @@
 "Beobachtung" = "Beobachtung";
 "Mehr anzeigen" = "Mehr anzeigen";
 "Weniger anzeigen" = "Weniger anzeigen";
+"%@ %%" = "%@ %%";
+"%@ MB" = "%@ MB";
+"%@ GB" = "%@ GB";
+"Name" = "Name";
+"Alle" = "Alle";
+"Alerts" = "Alerts";
+"Schwelle %@" = "Schwelle %@";
+"Heute" = "Heute";
+"Gestern" = "Gestern";

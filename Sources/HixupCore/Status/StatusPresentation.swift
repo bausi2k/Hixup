@@ -99,6 +99,20 @@ public enum StatusPresentation {
         return candidates.max { $0.ratio < $1.ratio }?.text ?? ""
     }
 
+    public static func cpuText(_ percent: Double) -> String {
+        L10n.tr("%@ %%", number(percent, fraction: 0))
+    }
+
+    public static func energyText(_ watts: Double) -> String {
+        L10n.tr("%@ W", number(watts, fraction: 1))
+    }
+
+    public static func memoryText(bytes: UInt64) -> String {
+        let megabytes = Double(bytes) / 1_048_576
+        if megabytes < 1_024 { return L10n.tr("%@ MB", number(megabytes, fraction: 0)) }
+        return L10n.tr("%@ GB", number(megabytes / 1_024, fraction: 1))
+    }
+
     private static func number(_ value: Double, fraction: Int) -> String {
         value.formatted(.number.precision(.fractionLength(fraction)).grouping(.never).locale(L10n.locale))
     }

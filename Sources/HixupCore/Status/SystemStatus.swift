@@ -81,6 +81,10 @@ public struct Offender: Equatable, Sendable {
     public let reasons: [OffenderReason]
 }
 
+extension Offender: Identifiable {
+    public var id: String { name }
+}
+
 public struct SystemStatus: Equatable, Sendable {
     public let level: HealthLevel
     /// Zeitstempel des neuesten Snapshots.
