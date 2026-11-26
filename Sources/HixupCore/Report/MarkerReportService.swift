@@ -22,7 +22,7 @@ public struct MarkerReportService: Sendable {
     }
 
     /// Bericht fuer die gegebenen Marker; ohne Marker entsteht ein Bericht mit Hinweis.
-    public func report(for markers: [Marker], language: AppLanguage? = nil) throws -> String {
+    public func report(for markers: [Marker], language: AppLanguage? = nil, includeAssessment: Bool = true) throws -> String {
         let input: MarkerReportInput
         if let first = markers.map(\.timestamp).min(), let last = markers.map(\.timestamp).max() {
             let start = first.addingTimeInterval(-window)
@@ -34,6 +34,27 @@ public struct MarkerReportService: Sendable {
         } else {
             input = MarkerReportInput(markers: [], snapshots: [], alerts: [], settings: settings(), system: system())
         }
-        return MarkerReportBuilder(language: language, window: window).build(input)
+        return MarkerReportBuilder(language: language, window: window, includeAssessment: includeAssessment).build(input)
     }
+
+    /// Messwerte und Einschaetzung fuer die Detailansicht eines Markers.
+    public func insight(for marker: Marker, language: AppLanguage? = nil) throws -> MarkerInsight {
+        let start = marker.timestamp.addingTimeInterval(-window)
+        let end = marker.timestamp.addingTimeInterval(window)
+        let inWindow = try snapshots.snapshots(from: start, to: end)
+        return MarkerInsight(
+            marker: marker,
+            metrics: MarkerMetrics.compute(marker: marker, snapshots: inWindow),
+            findings: MarkerDiagnosis(language: language, window: window)
+                .findings(marker: marker, snapshots: inWindow, settings: settings()),
+            sampleCount: inWindow.count
+        )
+    }
+}
+
+public struct MarkerInsight: Sendable {
+    public let marker: Marker
+    public let metrics: MarkerMetrics
+    public let findings: [DiagnosisFinding]
+    public let sampleCount: Int
 }

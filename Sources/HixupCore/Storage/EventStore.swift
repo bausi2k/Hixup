@@ -14,6 +14,10 @@ public struct Marker: Codable, Equatable, Sendable {
     }
 }
 
+extension Marker: Identifiable {
+    public var id: Date { timestamp }
+}
+
 /// Persistenz fuer ausgeloeste Alerts und manuelle Marker (Verlauf fuer die Oberflaeche).
 public protocol EventStore: Sendable {
     func record(_ alert: Alert) throws

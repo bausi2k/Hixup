@@ -122,7 +122,7 @@ public struct StatusEvaluator: Sendable {
     }
 
     /// Hixup und sein Agent erscheinen nur in der Rangliste, wenn sie selbst auffaellig viel verbrauchen.
-    private static func isOwnProcess(name: String) -> Bool {
+    static func isOwnProcess(name: String) -> Bool {
         name == "Hixup" || name == "HixupAgent" || name == "casa.gruber.hixup.agent"
     }
 

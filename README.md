@@ -152,3 +152,7 @@ Beim Setzen eines Markers erfasst Hixup einmalig Speicherdruck, Swap, thermische
 ## Marker-Export für KI
 
 Im Dashboard erzeugt "Für KI exportieren" (Bereich Ereignisse) einen Markdown-Bericht mit den Messwerten rund um die Marker (±5 Minuten), der Tiefenmessung, Systeminfos und einem Analyseauftrag. Der Bericht landet in der Zwischenablage oder in einer Datei und lässt sich direkt in eine KI einfügen. Er enthält nur Prozessnamen und Messwerte. Ein einzelner Marker lässt sich per Rechtsklick exportieren.
+
+## Marker-Details
+
+Ein Klick auf einen Marker im Dashboard zeigt die Messwerte zum Zeitpunkt, mögliche Ursachen (regelbasierte Einschätzung, keine Gewissheit) und eine Vorschau des Berichts, der an eine KI übergeben werden kann. Hixup sendet selbst nichts; der Bericht verlässt die App nur, wenn er kopiert oder gesichert wird.

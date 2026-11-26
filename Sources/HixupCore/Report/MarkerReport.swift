@@ -57,14 +57,18 @@ public struct MarkerReportBuilder: Sendable {
     private let timeZone: TimeZone
     private let window: TimeInterval
     private let now: Date
+    private let includeAssessment: Bool
 
     /// - Parameters:
     ///   - language: Sprache des Berichts; `nil` nutzt die aktuelle Sprache.
     ///   - window: Sekunden vor und nach einem Marker, die betrachtet werden.
+    ///   - includeAssessment: Nimmt die heuristische Einschaetzung von Hixup in den Bericht auf.
     ///   - now: Obergrenze fuer die erwartete Messpunktzahl; Zukunft zaehlt nicht als Luecke.
     public init(
-        language: AppLanguage? = nil, timeZone: TimeZone = .current, window: TimeInterval = 300, now: Date = Date()
+        language: AppLanguage? = nil, timeZone: TimeZone = .current, window: TimeInterval = 300, now: Date = Date(),
+        includeAssessment: Bool = true
     ) {
+        self.includeAssessment = includeAssessment
         self.now = now
         self.language = language
         self.timeZone = timeZone
@@ -128,6 +132,7 @@ public struct MarkerReportBuilder: Sendable {
         let expected = max(Int(observed / max(input.settings.sampleInterval, 1)), 0)
 
         lines += [""] + metricTable(marker: marker, snapshots: inWindow)
+        if includeAssessment { lines += [""] + assessmentLines(marker: marker, snapshots: inWindow, settings: input.settings) }
         if inWindow.count * 10 < expected * 7 {
             lines += ["", t("Hinweis: Nur %d von ca. %d erwarteten Messpunkten im Fenster (lief der Dienst zeitweise nicht?).", inWindow.count, expected)]
         }
@@ -136,20 +141,34 @@ public struct MarkerReportBuilder: Sendable {
         return lines
     }
 
+    private func assessmentLines(marker: Marker, snapshots: [Snapshot], settings: AgentSettings) -> [String] {
+        let findings = MarkerDiagnosis(language: language, window: window)
+            .findings(marker: marker, snapshots: snapshots, settings: settings)
+        var lines = [t("### Vorläufige Einschätzung von Hixup (heuristisch, kann falsch sein)")]
+        for finding in findings {
+            lines.append("- **\(finding.title)** (\(finding.confidence.name(language: language))): \(finding.evidence)")
+        }
+        return lines
+    }
+
     private func detailLines(_ detail: SystemDetail?) -> [String] {
         guard let detail else { return [t("Keine Tiefenmessung vorhanden (älterer Marker oder die Messung lief nicht durch).")] }
+        return [t("### Tiefenmessung beim Marker")] + detailSummary(detail).map { "- " + $0 }
+    }
+
+    /// Die Zeilen der Tiefenmessung als Text, auch fuer die Oberflaeche.
+    public func detailSummary(_ detail: SystemDetail) -> [String] {
         var lines = [
-            t("### Tiefenmessung beim Marker"),
-            "- " + t("Speicherdruck: %@", pressureName(detail.memoryPressure)),
-            "- " + t("Swap: %@ von %@", bytesText(detail.swapUsedBytes), bytesText(detail.swapTotalBytes)),
-            "- " + t("Thermik: %@", thermalName(detail.thermal)),
-            "- " + t("Energiesparmodus: %@", detail.lowPowerMode ? t("an") : t("aus"))
+            t("Speicherdruck: %@", detail.memoryPressure.name(language: language)),
+            t("Swap: %@ von %@", bytesText(detail.swapUsedBytes), bytesText(detail.swapTotalBytes)),
+            t("Thermik: %@", detail.thermal.name(language: language)),
+            t("Energiesparmodus: %@", detail.lowPowerMode ? t("an") : t("aus"))
         ]
         let network = detail.network
         let interface = network.interface.map { " (\($0))" } ?? ""
-        lines.append("- " + t("Netzwerk: %@", kindName(network.kind) + interface))
-        if let gateway = network.gateway { lines.append("- " + t("Router (%@): %@", gateway.host, latencyText(gateway))) }
-        if let internet = network.internet { lines.append("- " + t("Internet (%@): %@", internet.host, latencyText(internet))) }
+        lines.append(t("Netzwerk: %@", network.kind.name(language: language) + interface))
+        if let gateway = network.gateway { lines.append(t("Router (%@): %@", gateway.host, latencyText(gateway))) }
+        if let internet = network.internet { lines.append(t("Internet (%@): %@", internet.host, latencyText(internet))) }
         return lines
     }
 
@@ -164,26 +183,16 @@ public struct MarkerReportBuilder: Sendable {
     // MARK: - Messwerte
 
     private func metricTable(marker: Marker, snapshots: [Snapshot]) -> [String] {
-        let before = snapshots.filter { $0.timestamp < marker.timestamp }
-        let atMarker = snapshots.min {
-            abs($0.timestamp.timeIntervalSince(marker.timestamp)) < abs($1.timestamp.timeIntervalSince(marker.timestamp))
-        }
-        func row(_ name: String, value: (Snapshot) -> Double?, peak: ([Double]) -> Double?, text: (Double) -> String) -> String {
-            let past = before.compactMap(value)
-            let average = past.isEmpty ? nil : past.reduce(0, +) / Double(past.count)
-            let current = atMarker.flatMap(value)
-            let extreme = peak(snapshots.compactMap(value))
-            return "| \(name) | \(average.map(text) ?? "–") | \(current.map(text) ?? "–") | \(extreme.map(text) ?? "–") |"
+        let metrics = MarkerMetrics.compute(marker: marker, snapshots: snapshots)
+        func row(_ name: String, _ metric: MarkerMetric, text: (Double) -> String) -> String {
+            "| \(name) | \(metric.before.map(text) ?? "–") | \(metric.atMarker.map(text) ?? "–") | \(metric.peak.map(text) ?? "–") |"
         }
         return [
             "| " + t("Messwert") + " | " + t("Ø davor (%d Min.)", Int(window / 60)) + " | " + t("Beim Marker") + " | " + t("Spitze im Fenster") + " |",
             "|---|---|---|---|",
-            row(t("Freier Speicher"), value: { $0.memory.availablePercent }, peak: { $0.min() }, text: percentText),
-            row(t("CPU gesamt"), value: { $0.systemCPUPercent }, peak: { $0.max() }, text: percentText),
-            row(
-                t("Energie (Summe Top-Prozesse)"), value: { $0.processes.reduce(0) { $0 + $1.energyWatts } },
-                peak: { $0.max() }, text: { number($0, fraction: 1) + " W" }
-            )
+            row(t("Freier Speicher"), metrics.freeMemory, text: percentText),
+            row(t("CPU gesamt"), metrics.cpuTotal, text: percentText),
+            row(t("Energie (Summe Top-Prozesse)"), metrics.energy, text: { number($0, fraction: 1) + " W" })
         ]
     }
 
@@ -218,33 +227,6 @@ public struct MarkerReportBuilder: Sendable {
     }
 
     // MARK: - Texte
-
-    private func pressureName(_ level: MemoryPressureLevel) -> String {
-        switch level {
-        case .normal: t("normal")
-        case .warning: t("Warnung")
-        case .critical: t("kritisch")
-        }
-    }
-
-    private func thermalName(_ level: ThermalLevel) -> String {
-        switch level {
-        case .nominal: t("normal")
-        case .fair: t("erhöht")
-        case .serious: t("hoch")
-        case .critical: t("kritisch")
-        }
-    }
-
-    private func kindName(_ kind: NetworkKind) -> String {
-        switch kind {
-        case .wifi: "WLAN"
-        case .ethernet: "Ethernet"
-        case .vpn: "VPN"
-        case .other: t("Sonstiges")
-        case .none: t("keine Verbindung")
-        }
-    }
 
     private func bytesText(_ bytes: UInt64) -> String {
         let megabytes = Double(bytes) / 1_048_576
