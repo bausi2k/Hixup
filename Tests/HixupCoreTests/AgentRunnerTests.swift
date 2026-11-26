@@ -48,6 +48,7 @@ private final class SpyEventStore: EventStore, @unchecked Sendable {
         recorded.value.append(alert)
     }
     func alerts(from start: Date, to end: Date) throws -> [Alert] { recorded.value }
+    func setMarkerNote(_ note: String?, at timestamp: Date) throws {}
     func setMarkerDetail(_ detail: SystemDetail, at timestamp: Date) throws {}
     func addMarker(_ marker: Marker) throws {}
     func markers(from start: Date, to end: Date) throws -> [Marker] { [] }

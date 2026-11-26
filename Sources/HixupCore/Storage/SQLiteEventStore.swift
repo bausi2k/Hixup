@@ -83,6 +83,18 @@ public final class SQLiteEventStore: EventStore, @unchecked Sendable {
         }
     }
 
+    public func setMarkerNote(_ note: String?, at timestamp: Date) throws {
+        try database.withStatement("UPDATE markers SET note = ? WHERE timestamp = ?") { statement in
+            if let note {
+                sqlite3_bind_text(statement, 1, note, -1, SQLiteDatabase.transient)
+            } else {
+                sqlite3_bind_null(statement, 1)
+            }
+            sqlite3_bind_double(statement, 2, timestamp.timeIntervalSince1970)
+            try database.step(statement, expecting: SQLITE_DONE)
+        }
+    }
+
     public func setMarkerDetail(_ detail: SystemDetail, at timestamp: Date) throws {
         let payload: Data
         do {

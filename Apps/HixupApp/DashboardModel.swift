@@ -15,6 +15,7 @@ final class DashboardModel {
 
     private let service: HistoryService?
     private let reports: MarkerReportService?
+    private let recorder: MarkerRecorder?
     private var task: Task<Void, Never>?
     private var isVisible = false
     private var isRefreshing = false
@@ -29,6 +30,7 @@ final class DashboardModel {
             let snapshots = try SQLiteSnapshotStore(path: path)
             let events = try SQLiteEventStore(path: path)
             service = HistoryService(snapshots: snapshots, events: events)
+            recorder = MarkerRecorder(events: events)
             reports = MarkerReportService(
                 snapshots: snapshots, events: events,
                 settings: { AgentSettings.load(from: HixupPaths.settingsURL) }
@@ -36,6 +38,7 @@ final class DashboardModel {
         } catch {
             service = nil
             reports = nil
+            recorder = nil
             loadError = error.localizedDescription
         }
         task = Task { [weak self] in
@@ -56,6 +59,13 @@ final class DashboardModel {
     /// Markdown-Bericht fuer eine KI-Analyse der gegebenen Marker.
     func report(for markers: [Marker], includeAssessment: Bool = true) -> String? {
         try? reports?.report(for: markers, includeAssessment: includeAssessment)
+    }
+
+    /// Speichert die Notiz eines Markers; gibt den aktualisierten Marker zurueck.
+    func updateNote(_ text: String?, for marker: Marker) -> Marker? {
+        guard let updated = try? recorder?.updateNote(text, for: marker) else { return nil }
+        refresh()
+        return updated
     }
 
     func insight(for marker: Marker) -> MarkerInsight? {

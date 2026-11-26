@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Marker mit Notiz
+
+- Nach dem Hotkey (⌃⌥⌘H) erscheint ein kleines Eingabefeld "Was hakt?": Enter speichert, Esc oder 8 s ohne Eingabe schließen es. Der Marker selbst ist sofort gespeichert; das Feld nimmt Tastatureingaben an, ohne die aktive App zu wechseln
+- Im Marker-Detailfenster lässt sich die Notiz jederzeit ändern oder entfernen; sie erscheint im KI-Bericht
+- `EventStore.setMarkerNote`, `MarkerRecorder.updateNote` (Leerraum entfernt, leer = keine Notiz, höchstens 200 Zeichen)
+- 243 Tests
+
 ## [0.7.0] – Hixup auf Samtpfoten
 
 Speicherdruck als Alarm und ein deutlich ressourcenschonenderer Betrieb: im Ruhezustand rund 0,3 % CPU und 30 MB statt 2,3 % und 55–75 MB.

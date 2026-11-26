@@ -15,6 +15,18 @@ struct MarkerDetailView: View {
     @State private var reportText = ""
     @State private var showPreview = false
     @State private var message: String?
+    @State private var note: String
+
+    init(marker: Marker, model: DashboardModel) {
+        self.marker = marker
+        self.model = model
+        _note = State(initialValue: marker.note ?? "")
+    }
+
+    /// Der Marker mit der gerade eingetragenen Notiz; Grundlage fuer Titel und Bericht.
+    private var current: Marker {
+        Marker(timestamp: marker.timestamp, note: note.isEmpty ? nil : note, detail: marker.detail)
+    }
 
     var body: some View {
         let _ = languageModel.language
@@ -40,8 +52,12 @@ struct MarkerDetailView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Label(marker.note ?? L10n.tr("Marker"), systemImage: "flag.fill")
+            Label(current.note ?? L10n.tr("Marker"), systemImage: "flag.fill")
                 .font(.title2.weight(.semibold)).foregroundStyle(.primary)
+            TextField(L10n.tr("Notiz hinzufügen"), text: $note)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit(saveNote)
+                .padding(.vertical, 2)
             Text(marker.timestamp.formatted(date: .complete, time: .standard))
                 .foregroundStyle(.secondary)
         }
@@ -166,7 +182,14 @@ struct MarkerDetailView: View {
     }
 
     private func reloadReport() {
-        reportText = model.report(for: [marker], includeAssessment: includeAssessment) ?? ""
+        reportText = model.report(for: [current], includeAssessment: includeAssessment) ?? ""
+    }
+
+    private func saveNote() {
+        guard let updated = model.updateNote(note, for: marker) else { return }
+        note = updated.note ?? ""
+        reloadReport()
+        message = L10n.tr("Notiz gespeichert")
     }
 
     private func copy() {
