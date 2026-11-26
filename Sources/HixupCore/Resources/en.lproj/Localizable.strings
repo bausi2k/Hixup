@@ -106,3 +106,6 @@
 "Schwelle %@" = "Threshold %@";
 "Heute" = "Today";
 "Gestern" = "Yesterday";
+"Alarme" = "Alerts";
+"Ein Alarm entsteht, wenn ein Wert seine Schwelle für die Mindestdauer überschreitet." = "An alert fires when a value stays beyond its threshold for the minimum duration.";
+"Kürzere Intervalle erkennen Spitzen genauer, brauchen aber mehr Speicherplatz." = "Shorter intervals catch peaks more precisely but need more disk space.";

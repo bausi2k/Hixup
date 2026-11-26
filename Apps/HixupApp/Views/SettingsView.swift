@@ -37,29 +37,15 @@ struct SettingsView: View {
     var body: some View {
         let _ = languageModel.language
         Form {
-            Section(L10n.tr("Empfindlichkeit")) { sensitivity }
             Section {
+                sensitivity
                 DisclosureGroup(L10n.tr("Feineinstellung der Schwellen"), isExpanded: $showFineTuning) { thresholds }
+            } header: {
+                Text(L10n.tr("Alarme"))
+            } footer: {
+                Text(L10n.tr("Ein Alarm entsteht, wenn ein Wert seine Schwelle für die Mindestdauer überschreitet."))
             }
-            Section(L10n.tr("Sprache")) {
-                @Bindable var languageModel = languageModel
-                Picker(L10n.tr("Sprache"), selection: $languageModel.language) {
-                    Text(L10n.tr("System")).tag(AppLanguage.system)
-                    Text("Deutsch").tag(AppLanguage.de)
-                    Text("English").tag(AppLanguage.en)
-                }
-            }
-            Section(L10n.tr("Darstellung")) {
-                Toggle(L10n.tr("Im Dock anzeigen"), isOn: Binding(
-                    get: { visibility.value.showInDock }, set: { visibility.setDock($0) }
-                ))
-                Toggle(L10n.tr("Menüleisten-Symbol anzeigen"), isOn: Binding(
-                    get: { visibility.value.showMenuBarItem }, set: { visibility.setMenuBar($0) }
-                ))
-                Text(L10n.tr("Mindestens eines von beiden bleibt aktiv, damit Hixup erreichbar bleibt."))
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            Section(L10n.tr("Messung")) {
+            Section {
                 Stepper(value: $interval, in: 1...300, step: 1) {
                     LabeledContent(L10n.tr("Messintervall"), value: "\(Int(interval)) s")
                 }
@@ -69,19 +55,45 @@ struct SettingsView: View {
                 Stepper(value: $retentionDays, in: 1...365) {
                     LabeledContent(L10n.tr("Aufbewahrung"), value: L10n.tr("%d Tage", retentionDays))
                 }
+            } header: {
+                Text(L10n.tr("Messung"))
+            } footer: {
+                Text(L10n.tr("Kürzere Intervalle erkennen Spitzen genauer, brauchen aber mehr Speicherplatz."))
             }
-            Section(L10n.tr("Immer erfassen")) {
+            Section {
                 TextEditor(text: $watched)
                     .font(.body.monospaced())
                     .frame(height: 80)
                     .accessibilityLabel(L10n.tr("Beobachtete Prozesse"))
+            } header: {
+                Text(L10n.tr("Immer erfassen"))
+            } footer: {
                 Text(L10n.tr("Prozessnamen, getrennt durch Komma oder Zeilenumbruch, z. B. Citrix Viewer."))
-                    .font(.caption).foregroundStyle(.secondary)
             }
-            Section(L10n.tr("Marker")) {
+            Section {
+                @Bindable var languageModel = languageModel
+                Picker(L10n.tr("Sprache"), selection: $languageModel.language) {
+                    Text(L10n.tr("System")).tag(AppLanguage.system)
+                    Text("Deutsch").tag(AppLanguage.de)
+                    Text("English").tag(AppLanguage.en)
+                }
+                Toggle(L10n.tr("Im Dock anzeigen"), isOn: Binding(
+                    get: { visibility.value.showInDock }, set: { visibility.setDock($0) }
+                ))
+                Toggle(L10n.tr("Menüleisten-Symbol anzeigen"), isOn: Binding(
+                    get: { visibility.value.showMenuBarItem }, set: { visibility.setMenuBar($0) }
+                ))
+            } header: {
+                Text(L10n.tr("Darstellung"))
+            } footer: {
+                Text(L10n.tr("Mindestens eines von beiden bleibt aktiv, damit Hixup erreichbar bleibt."))
+            }
+            Section {
                 LabeledContent("Hotkey", value: "⌃⌥⌘H")
+            } header: {
+                Text(L10n.tr("Marker"))
+            } footer: {
                 Text(L10n.tr("Setzt in jeder App eine Markierung \"jetzt ruckelt es\" im Verlauf. Läuft über den Hintergrunddienst."))
-                    .font(.caption).foregroundStyle(.secondary)
             }
             HStack {
                 if let message { Text(message).font(.caption).foregroundStyle(.secondary) }

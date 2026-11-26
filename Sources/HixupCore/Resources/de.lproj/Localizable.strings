@@ -106,3 +106,6 @@
 "Schwelle %@" = "Schwelle %@";
 "Heute" = "Heute";
 "Gestern" = "Gestern";
+"Alarme" = "Alarme";
+"Ein Alarm entsteht, wenn ein Wert seine Schwelle für die Mindestdauer überschreitet." = "Ein Alarm entsteht, wenn ein Wert seine Schwelle für die Mindestdauer überschreitet.";
+"Kürzere Intervalle erkennen Spitzen genauer, brauchen aber mehr Speicherplatz." = "Kürzere Intervalle erkennen Spitzen genauer, brauchen aber mehr Speicherplatz.";
