@@ -4,4 +4,4 @@ Branch: feature/alert-detail (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (siehe git log) | feat: alert detail view with deep measurement and report |
+| b343d4c | feat: alert detail view with deep measurement and report |
