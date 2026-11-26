@@ -126,8 +126,11 @@ struct SettingsView: View {
             set: { select(levels[Int($0.rounded())]) }
         )
         return VStack(alignment: .leading, spacing: 6) {
-            Slider(value: slider, in: 0...Double(levels.count - 1), step: 1)
-                .accessibilityLabel(L10n.tr("Empfindlichkeit"))
+            // `labelsHidden` entfernt die leere Beschriftungsspalte, die das Formular sonst links reserviert;
+            // erst dann liegen Regler und Stufennamen auf derselben Breite.
+            Slider(value: slider, in: 0...Double(levels.count - 1), step: 1) { Text(L10n.tr("Empfindlichkeit")) }
+                .labelsHidden()
+                .frame(maxWidth: .infinity)
                 .accessibilityValue((matchingLevel ?? lastLevel).title)
             HStack {
                 ForEach(levels, id: \.self) { level in
