@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Marker-Export für KI-Analysen
+
+- Dashboard → Ereignisse → "Für KI exportieren": erzeugt einen Markdown-Bericht (Zwischenablage oder Datei) für alle Marker des Zeitraums; Rechtsklick auf einen Marker exportiert nur diesen
+- Inhalt: Einleitung mit Analyseauftrag, Systeminfos (Modell, Chip, RAM, macOS, Betriebszeit), Messintervall und Schwellen, je Marker die Tiefenmessung (Speicherdruck, Swap, Thermik, Netzwerk), Tabelle "Ø davor / beim Marker / Spitze" für Speicher, CPU und Energie, die fünf ressourcenhungrigsten Apps und Alerts im Fenster von ±5 Minuten, Hinweis auf Messlücken
+- Bericht auf Deutsch oder Englisch je nach Spracheinstellung; er enthält nur Prozessnamen und Messwerte
+- `MarkerReportBuilder` (rein berechnend) und `MarkerReportService` im Core
+- 189 Tests; Bericht mit echten Messdaten geprüft
+
 ### Tiefenmessung am Marker
 
 - Beim Setzen eines Markers (Hotkey oder Button) misst Hixup einmalig zusätzliche Werte und speichert sie am Marker: Speicherdruck, Swap-Nutzung, thermischer Zustand, Energiesparmodus sowie Netzwerk (aktive Schnittstelle: WLAN / Ethernet / VPN, Latenz und Paketverlust zum Router und zu 1.1.1.1)

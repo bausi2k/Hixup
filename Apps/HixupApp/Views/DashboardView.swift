@@ -1,11 +1,14 @@
+import AppKit
 import Charts
 import HixupCore
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct DashboardView: View {
     let status: StatusModel
     @Bindable var model: DashboardModel
     @State private var eventFilter = EventFilter.all
+    @State private var exportMessage: String?
 
     @Environment(LanguageModel.self) private var languageModel
 
@@ -194,13 +197,15 @@ struct DashboardView: View {
                     ForEach(EventFilter.allCases, id: \.self) { Text($0.title).tag($0) }
                 }
                 .pickerStyle(.segmented).labelsHidden().frame(width: 220)
+                exportMenu(history)
             }
+            if let exportMessage { Text(exportMessage).font(.caption).foregroundStyle(.secondary) }
             if items.isEmpty {
                 Text(L10n.tr("Keine Alerts oder Marker im Zeitraum")).foregroundStyle(.secondary)
             }
             ForEach(DayGrouping.group(items, date: \.time), id: \.day) { group in
                 Text(dayTitle(group.day)).font(.subheadline.weight(.semibold)).padding(.top, 4)
-                ForEach(group.items) { item in entryRow(item) }
+                ForEach(group.items) { item in entryRow(item, history: history) }
             }
         }
         .padding(12)
@@ -208,7 +213,7 @@ struct DashboardView: View {
         .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 10))
     }
 
-    private func entryRow(_ item: Entry) -> some View {
+    private func entryRow(_ item: Entry, history: History) -> some View {
         Button {
             model.focusedTime = model.focusedTime == item.time ? nil : item.time
         } label: {
@@ -230,5 +235,51 @@ struct DashboardView: View {
         }
         .buttonStyle(.plain)
         .accessibilityHint(L10n.tr("Hebt den Zeitpunkt in den Diagrammen hervor"))
+        .contextMenu {
+            if let marker = history.markers.first(where: { $0.timestamp == item.time }) {
+                Button(L10n.tr("Marker für KI kopieren")) { copyReport([marker]) }
+            }
+        }
+    }
+
+    // MARK: - KI-Export
+
+    private func exportMenu(_ history: History) -> some View {
+        Menu {
+            Button(L10n.tr("Alle Marker kopieren")) { copyReport(history.markers) }
+            Button(L10n.tr("Alle Marker als Datei sichern…")) { saveReport(history.markers) }
+        } label: {
+            Label(L10n.tr("Für KI exportieren"), systemImage: "square.and.arrow.up")
+        }
+        .menuStyle(.borderlessButton).fixedSize()
+        .disabled(history.markers.isEmpty)
+        .help(L10n.tr("Erzeugt einen Bericht mit Messwerten rund um die Marker für eine KI-Analyse"))
+    }
+
+    private func copyReport(_ markers: [Marker]) {
+        guard let text = model.report(for: markers) else {
+            exportMessage = L10n.tr("Bericht konnte nicht erstellt werden")
+            return
+        }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+        exportMessage = L10n.tr("In die Zwischenablage kopiert")
+    }
+
+    private func saveReport(_ markers: [Marker]) {
+        guard let text = model.report(for: markers) else {
+            exportMessage = L10n.tr("Bericht konnte nicht erstellt werden")
+            return
+        }
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [UTType(filenameExtension: "md") ?? .plainText]
+        panel.nameFieldStringValue = "hixup-report-\(Date.now.formatted(.iso8601.year().month().day())).md"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try text.write(to: url, atomically: true, encoding: .utf8)
+            exportMessage = L10n.tr("Bericht gespeichert")
+        } catch {
+            exportMessage = L10n.tr("Fehler: %@", error.localizedDescription)
+        }
     }
 }
