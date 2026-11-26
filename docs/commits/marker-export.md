@@ -4,4 +4,4 @@ Branch: feature/marker-export (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (siehe git log) | feat: export markers as AI analysis report |
+| 3a881f1 | feat: export markers as AI analysis report |
