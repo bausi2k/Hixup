@@ -25,6 +25,19 @@ public final class SQLiteEventStore: EventStore, @unchecked Sendable {
     /// - Parameter path: Dateipfad oder `":memory:"`.
     public init(path: String) throws {
         database = try SQLiteDatabase(path: path, schema: Self.schema)
+        try addDetailColumnIfMissing()
+    }
+
+    /// Migration fuer Datenbanken aus Version 0.4 ohne `detail`-Spalte.
+    private func addDetailColumnIfMissing() throws {
+        let hasColumn = try database.withStatement("PRAGMA table_info(markers)") { statement in
+            var found = false
+            while sqlite3_step(statement) == SQLITE_ROW {
+                if String(cString: sqlite3_column_text(statement, 1)) == "detail" { found = true }
+            }
+            return found
+        }
+        if !hasColumn { try database.execute("ALTER TABLE markers ADD COLUMN detail BLOB;") }
     }
 
     public func record(_ alert: Alert) throws {
@@ -70,9 +83,23 @@ public final class SQLiteEventStore: EventStore, @unchecked Sendable {
         }
     }
 
+    public func setMarkerDetail(_ detail: SystemDetail, at timestamp: Date) throws {
+        let payload: Data
+        do {
+            payload = try encoder.encode(detail)
+        } catch {
+            throw StorageError.encodingFailed(String(describing: error))
+        }
+        try database.withStatement("UPDATE markers SET detail = ? WHERE timestamp = ?") { statement in
+            SQLiteDatabase.bind(payload, at: 1, in: statement)
+            sqlite3_bind_double(statement, 2, timestamp.timeIntervalSince1970)
+            try database.step(statement, expecting: SQLITE_DONE)
+        }
+    }
+
     public func markers(from start: Date, to end: Date) throws -> [Marker] {
         try database.withStatement(
-            "SELECT timestamp, note FROM markers WHERE timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC, id ASC"
+            "SELECT timestamp, note, detail FROM markers WHERE timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC, id ASC"
         ) { statement in
             sqlite3_bind_double(statement, 1, start.timeIntervalSince1970)
             sqlite3_bind_double(statement, 2, end.timeIntervalSince1970)
@@ -81,7 +108,12 @@ public final class SQLiteEventStore: EventStore, @unchecked Sendable {
             while sqlite3_step(statement) == SQLITE_ROW {
                 let note = sqlite3_column_type(statement, 1) == SQLITE_NULL
                     ? nil : String(cString: sqlite3_column_text(statement, 1))
-                result.append(Marker(timestamp: Date(timeIntervalSince1970: sqlite3_column_double(statement, 0)), note: note))
+                let detail = SQLiteDatabase.decodeBlob(from: statement, column: 2)
+                    .flatMap { try? decoder.decode(SystemDetail.self, from: $0) }
+                result.append(Marker(
+                    timestamp: Date(timeIntervalSince1970: sqlite3_column_double(statement, 0)),
+                    note: note, detail: detail
+                ))
             }
             return result
         }

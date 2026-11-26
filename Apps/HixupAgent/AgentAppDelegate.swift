@@ -31,7 +31,7 @@ final class AgentAppDelegate: NSObject, NSApplicationDelegate {
                 reportError: { logger.error("\(String(describing: $0), privacy: .public)") }
             )
             runTask = Task { await runner.run() }
-            registerMarkerHotKey(recorder: MarkerRecorder(events: events))
+            registerMarkerHotKey(recorder: MarkerRecorder(events: events, detail: SystemDetailCollector()))
             logger.info("Agent gestartet")
         } catch {
             logger.fault("Start fehlgeschlagen: \(String(describing: error), privacy: .public)")
@@ -44,7 +44,8 @@ final class AgentAppDelegate: NSObject, NSApplicationDelegate {
         let logger = logger
         hotKey = HotKeyMonitor(keyCode: kVK_ANSI_H, modifiers: controlKey | optionKey | cmdKey) {
             do {
-                try recorder.mark()
+                let marker = try recorder.mark()
+                Task { await recorder.attachDetail(to: marker) }
                 NSSound(named: "Pop")?.play()
             } catch {
                 logger.error("Marker fehlgeschlagen: \(String(describing: error), privacy: .public)")

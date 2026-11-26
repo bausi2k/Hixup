@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Tiefenmessung am Marker
+
+- Beim Setzen eines Markers (Hotkey oder Button) misst Hixup einmalig zusätzliche Werte und speichert sie am Marker: Speicherdruck, Swap-Nutzung, thermischer Zustand, Energiesparmodus sowie Netzwerk (aktive Schnittstelle: WLAN / Ethernet / VPN, Latenz und Paketverlust zum Router und zu 1.1.1.1)
+- Der Marker wird sofort gespeichert, die Tiefenmessung (Ping, bis ca. 4 s) folgt im Hintergrund
+- Neue Spalte `markers.detail` mit Migration für bestehende Datenbanken
+- Hinweis: Für die Internet-Latenz sendet Hixup drei Pings an 1.1.1.1
+- 175 Tests; echte Werte auf dem Mac geprüft
+
 ### Fix: Fokus-Diebstahl (Ursache)
 
 - SwiftUIs `MenuBarExtra` ruft den Setter von `isInserted` fortlaufend mit dem aktuellen Wert auf; `VisibilityModel` aktivierte dabei jedes Mal die App. Jetzt ist ein unveränderter Wert ein No-op, aktiviert wird nur beim echten Einschalten des Dock-Symbols. Ursache per `lldb`-Backtrace gefunden, Fix per Fokus-Messung bestätigt

@@ -144,3 +144,7 @@ Hixup laeuft als normale App mit Dock-Symbol und Hauptfenster. In den Einstellun
 ## Notarisierung
 
 Schritte fuer ein signiertes, notarisiertes DMG stehen in [docs/notarization.md](docs/notarization.md).
+
+## Tiefenmessung am Marker
+
+Beim Setzen eines Markers erfasst Hixup einmalig Speicherdruck, Swap, thermischen Zustand, Energiesparmodus und Netzwerkdaten (Schnittstelle, Latenz und Paketverlust zum Router und per Ping zu 1.1.1.1). Die Werte hängen am Marker und dienen der Ursachenanalyse, z. B. im geplanten Export für KI-Analysen.
