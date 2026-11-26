@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fix: Prozessnamen und Hixup in der Rangliste
+
+- Prozessnamen kommen aus dem Programmpfad statt aus `proc_name` und sind nicht mehr auf ca. 31 Zeichen gekürzt (z. B. "Google Chrome Helper (Renderer)")
+- Hixup und der Hintergrunddienst erscheinen in der Rangliste der ressourcenhungrigsten Apps nur noch, wenn sie selbst auffällig viel verbrauchen
+- 195 Tests
+
 ## [0.5.0] – Hixup apportiert
 
 Marker mit Tiefenmessung (Speicherdruck, Swap, Thermik, Netzwerk), Export der Marker als Bericht für KI-Analysen, Fokus-Fix und Notarisierungs-Doku.

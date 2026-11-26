@@ -115,9 +115,15 @@ public struct StatusEvaluator: Sendable {
                 wakeups: wakeups, resident: newest.resident
             )
         }
+        .filter { !(Self.isOwnProcess(name: $0.name) && $0.reasons.isEmpty) }
         .sorted { $0.score != $1.score ? $0.score > $1.score : $0.name < $1.name }
         .prefix(maxOffenders)
         .map { $0 }
+    }
+
+    /// Hixup und sein Agent erscheinen nur in der Rangliste, wenn sie selbst auffaellig viel verbrauchen.
+    private static func isOwnProcess(name: String) -> Bool {
+        name == "Hixup" || name == "HixupAgent" || name == "casa.gruber.hixup.agent"
     }
 
     private func group(_ snapshot: Snapshot) -> [String: Group] {
