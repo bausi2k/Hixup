@@ -8,6 +8,12 @@
 
 - Hixup holte sich nach dem Start wiederholt den Fokus; der Wechsel zu anderen Apps war kaum möglich. Die Aktivierung läuft nur noch beim bewussten Einschalten des Dock-Symbols, und die Aktivierungsrichtlinie wird nur bei einer Änderung gesetzt
 
+### Einstellungen aufgeräumt
+
+- Gruppen: Alarme (Empfindlichkeit und Feineinstellung), Messung, Immer erfassen, Darstellung (Sprache, Dock, Menüleiste), Marker
+- Jede Gruppe mit einer kurzen Erklärung
+- 161 Tests
+
 ### Dashboard aufgeräumt
 
 - Diagramme im 2×2-Raster (Speicher, CPU, Energie, Ressourcenhungrigste Apps); Schwellenlinien mit Beschriftung (Werte aus den Einstellungen)
