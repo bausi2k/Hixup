@@ -29,7 +29,7 @@ final class StatusModel {
                     StatusEvaluator(rules: DefaultRules.rules(for: AgentSettings.load(from: HixupPaths.settingsURL)))
                 }
             )
-            recorder = MarkerRecorder(events: events)
+            recorder = MarkerRecorder(events: events, detail: SystemDetailCollector())
         } catch {
             service = nil
             recorder = nil
@@ -42,7 +42,10 @@ final class StatusModel {
 
     func addMarker() {
         do {
-            try recorder?.mark()
+            if let recorder {
+                let marker = try recorder.mark()
+                Task { await recorder.attachDetail(to: marker) }
+            }
             loadError = nil
         } catch {
             loadError = error.localizedDescription
