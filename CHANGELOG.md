@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.6.0] – Hixup schnüffelt
+
+Marker-Details mit Ursachen-Einschätzung und Berichtsvorschau, volle Prozessnamen und Hixup selbst nur noch bei echter Last in der Rangliste.
+
 ### Marker-Details und Einschätzung
 
 - Klick auf einen Marker im Dashboard öffnet ein Detailfenster: Tiefenmessung und Messwert-Tabelle, mögliche Ursachen mit Einstufung (Hoch / Mittel / Niedrig) und Begründung, Vorschau des KI-Berichts mit Zeichenzahl sowie Kopieren und Sichern
