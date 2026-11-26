@@ -29,6 +29,10 @@ struct DashboardView: View {
         }
         .frame(minWidth: 760, minHeight: 640)
         .sheet(item: $selectedMarker) { MarkerDetailView(marker: $0, model: model) }
+        .background(WindowVisibility { visible in
+            status.setActive(visible, source: "dashboard")
+            model.setVisible(visible)
+        })
     }
 
     // MARK: - Kopf

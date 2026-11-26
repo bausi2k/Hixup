@@ -160,3 +160,7 @@ Ein Klick auf einen Marker im Dashboard zeigt die Messwerte zum Zeitpunkt, mögl
 ## Speicherdruck-Alarm
 
 Neben dem freien Speicher überwacht Hixup den Speicherdruck, den macOS selbst meldet (normal, Warnung, kritisch). Bei anhaltender Warnung entsteht ein Alarm "Speicherdruck erhöht", bei kritischem Druck "Speicherdruck kritisch". Der Alarm lässt sich in den Einstellungen (Feineinstellung) abschalten.
+
+## Ressourcenverbrauch
+
+Hixup soll selbst kaum Last erzeugen: Der Hintergrunddienst braucht rund 0,2 % CPU und 9 MB, die App im Ruhezustand rund 0,3 % CPU und 30 MB. Popover und Dashboard lesen nur, solange sie sichtbar sind, und Diagramme werden aus vorberechneten Spalten gelesen statt aus dem JSON der Snapshots.

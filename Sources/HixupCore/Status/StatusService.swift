@@ -9,6 +9,17 @@ public struct TrendPoint: Equatable, Sendable {
     /// Gesamtauslastung aller Kerne (0...100); `nil` in aelteren Snapshots.
     public let systemCPUPercent: Double?
 
+    init(
+        timestamp: Date, availableMemoryPercent: Double, cpuPercent: Double, energyWatts: Double,
+        systemCPUPercent: Double?
+    ) {
+        self.timestamp = timestamp
+        self.availableMemoryPercent = availableMemoryPercent
+        self.cpuPercent = cpuPercent
+        self.energyWatts = energyWatts
+        self.systemCPUPercent = systemCPUPercent
+    }
+
     init(snapshot: Snapshot) {
         timestamp = snapshot.timestamp
         availableMemoryPercent = snapshot.memory.availablePercent
@@ -51,6 +62,19 @@ public struct StatusService: Sendable {
         self.evaluatorProvider = evaluatorProvider
         self.lookback = lookback
         self.alertHistory = alertHistory
+    }
+
+    /// Status und Verlauf aus einem einzigen Lesevorgang; spart gegenueber `current` plus `trend` das doppelte
+    /// Dekodieren derselben Snapshots.
+    public func overview(now: Date = Date(), trendWindow: TimeInterval = 600) throws -> (status: SystemStatus, trend: [TrendPoint]) {
+        let recent = try snapshots.snapshots(from: now.addingTimeInterval(-max(lookback, trendWindow)), to: now)
+        let alerts = try events.alerts(from: now.addingTimeInterval(-alertHistory), to: now)
+        let status = evaluatorProvider().evaluate(
+            snapshots: recent.filter { $0.timestamp >= now.addingTimeInterval(-lookback) },
+            recentAlerts: alerts, now: now
+        )
+        let trend = recent.filter { $0.timestamp >= now.addingTimeInterval(-trendWindow) }.map(TrendPoint.init(snapshot:))
+        return (status, trend)
     }
 
     public func current(now: Date = Date()) throws -> SystemStatus {

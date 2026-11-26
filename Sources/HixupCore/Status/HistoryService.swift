@@ -13,6 +13,15 @@ public enum HistoryRange: String, CaseIterable, Sendable {
         }
     }
 
+    /// Sekunden zwischen zwei Aktualisierungen; lange Zeitraeume aendern sich kaum sichtbar.
+    public var refreshInterval: TimeInterval {
+        switch self {
+        case .hour: 10
+        case .day: 60
+        case .twoWeeks: 300
+        }
+    }
+
     public var title: String {
         switch self {
         case .hour: L10n.tr("1 Std.")
@@ -37,6 +46,8 @@ public struct HistoryService: Sendable {
     private let events: any EventStore
     private let maxPoints: Int
     private let maxOffenders: Int
+    /// Anzahl gleichmaessig verteilter Snapshots, aus denen die Rangliste berechnet wird; das genuegt statistisch.
+    private let offenderSamples = 120
 
     /// - Parameter maxPoints: Obergrenze der Diagrammpunkte; laengere Zeitraeume werden ausgeduennt.
     public init(snapshots: any SnapshotStore, events: any EventStore, maxPoints: Int = 400, maxOffenders: Int = 8) {
@@ -48,14 +59,14 @@ public struct HistoryService: Sendable {
 
     public func history(range: HistoryRange, now: Date = Date()) throws -> History {
         let start = now.addingTimeInterval(-range.duration)
-        let sampled = try snapshots.sampledSnapshots(from: start, to: now, maxPoints: maxPoints)
-        let peaks = try snapshots.peakSnapshots(from: start, to: now, maxPoints: maxPoints)
+        let sampled = try snapshots.sampledSnapshots(from: start, to: now, maxPoints: min(maxPoints, offenderSamples))
+        let points = try snapshots.peakPoints(from: start, to: now, maxPoints: maxPoints)
         let evaluator = StatusEvaluator(
             rules: [], offenderWindow: range.duration, staleAfter: .infinity, maxOffenders: maxOffenders
         )
         return History(
             range: range,
-            points: peaks.map(TrendPoint.init(snapshot:)),
+            points: points,
             alerts: try events.alerts(from: start, to: now),
             markers: try events.markers(from: start, to: now),
             offenders: evaluator.evaluate(snapshots: sampled, now: now).offenders

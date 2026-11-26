@@ -33,6 +33,7 @@ private final class SpyStore: SnapshotStore, @unchecked Sendable {
     func snapshots(from start: Date, to end: Date) throws -> [Snapshot] { [] }
     func sampledSnapshots(from start: Date, to end: Date, maxPoints: Int) throws -> [Snapshot] { [] }
     func peakSnapshots(from start: Date, to end: Date, maxPoints: Int) throws -> [Snapshot] { [] }
+    func peakPoints(from start: Date, to end: Date, maxPoints: Int) throws -> [TrendPoint] { [] }
     func purge(olderThan date: Date) throws -> Int { purgeDates.value.append(date); return 0 }
     func count() throws -> Int { appended.value.count }
 }

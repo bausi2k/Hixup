@@ -26,6 +26,7 @@ struct StatusPopover: View {
         }
         .padding(14)
         .frame(width: 340)
+        .background(WindowVisibility { model.setActive($0, source: "popover") })
     }
 
     // MARK: - Abschnitte
