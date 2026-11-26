@@ -68,6 +68,14 @@ final class DashboardModel {
         return updated
     }
 
+    func report(forAlert alert: HixupCore.Alert, includeAssessment: Bool = true) -> String? {
+        try? reports?.report(forAlerts: [alert], includeAssessment: includeAssessment)
+    }
+
+    func insight(forAlert alert: HixupCore.Alert) -> MarkerInsight? {
+        try? reports?.insight(forAlert: alert)
+    }
+
     func insight(for marker: Marker) -> MarkerInsight? {
         try? reports?.insight(for: marker)
     }

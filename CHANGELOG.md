@@ -4,6 +4,15 @@
 
 ## [Unreleased]
 
+### Alert-Details und KI-Export
+
+- Ein Klick auf einen Alarm im Dashboard öffnet dasselbe Detailfenster wie ein Marker: Auslöser mit Wert und Schwelle, Tiefenmessung, Messwert-Tabelle, mögliche Ursachen und Berichtsvorschau mit Kopieren und Sichern
+- Der Agent misst beim Auslösen eines Alarms einmalig Netzwerk, Swap, Thermik und Speicherdruck (`AlertDetailRecorder`) und speichert sie am Alarm (`Alert.system`); die Messung läuft nach der Benachrichtigung und hält sie nicht auf
+- Der Bericht unterscheidet Marker ("Nutzer bemerkt Ruckler") und Alarme ("Regel hat ausgelöst"); Speicherdruck-Alarme zeigen Stufennamen statt Zahlen
+- `EventStore.setAlertDetail`; `MarkerReportService.report(forAlerts:)` und `insight(forAlert:)`
+- Ältere Alarme haben keine Tiefenmessung; der Bericht weist darauf hin
+- 255 Tests; Bericht mit einem echten Alarm geprüft
+
 ## [0.8.0] – Hixup hört zu
 
 Marker mit Notiz: Nach dem Hotkey fragt ein kleines Feld "Was hakt?", die Notiz lässt sich im Detailfenster ändern und fließt in den KI-Bericht ein.

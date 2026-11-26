@@ -23,6 +23,8 @@ public protocol EventStore: Sendable {
     func record(_ alert: Alert) throws
     /// Alerts im geschlossenen Zeitraum, aufsteigend nach Zeitstempel.
     func alerts(from start: Date, to end: Date) throws -> [Alert]
+    /// Traegt die Tiefenmessung zu einem Alert nach (Zeitstempel und Regel identifizieren ihn).
+    func setAlertDetail(_ detail: SystemDetail, for alert: Alert) throws
     func addMarker(_ marker: Marker) throws
     /// Setzt oder entfernt (`nil`) die Notiz des Markers mit diesem Zeitstempel.
     func setMarkerNote(_ note: String?, at timestamp: Date) throws

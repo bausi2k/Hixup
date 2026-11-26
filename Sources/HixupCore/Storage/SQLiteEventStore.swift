@@ -55,6 +55,36 @@ public final class SQLiteEventStore: EventStore, @unchecked Sendable {
         }
     }
 
+    public func setAlertDetail(_ detail: SystemDetail, for alert: Alert) throws {
+        let rows: [(id: Int64, alert: Alert)] = try database.withStatement(
+            "SELECT id, payload FROM alerts WHERE timestamp = ?"
+        ) { statement in
+            sqlite3_bind_double(statement, 1, alert.timestamp.timeIntervalSince1970)
+            var found: [(Int64, Alert)] = []
+            while sqlite3_step(statement) == SQLITE_ROW {
+                guard let data = SQLiteDatabase.decodeBlob(from: statement, column: 1),
+                      let stored = try? decoder.decode(Alert.self, from: data) else { continue }
+                found.append((sqlite3_column_int64(statement, 0), stored))
+            }
+            return found
+        }
+        guard let row = rows.first(where: { $0.alert.ruleID == alert.ruleID }) else { return }
+
+        var updated = row.alert
+        updated.system = detail
+        let payload: Data
+        do {
+            payload = try encoder.encode(updated)
+        } catch {
+            throw StorageError.encodingFailed(String(describing: error))
+        }
+        try database.withStatement("UPDATE alerts SET payload = ? WHERE id = ?") { statement in
+            SQLiteDatabase.bind(payload, at: 1, in: statement)
+            sqlite3_bind_int64(statement, 2, row.id)
+            try database.step(statement, expecting: SQLITE_DONE)
+        }
+    }
+
     public func alerts(from start: Date, to end: Date) throws -> [Alert] {
         try database.withStatement(
             "SELECT payload FROM alerts WHERE timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC, id ASC"

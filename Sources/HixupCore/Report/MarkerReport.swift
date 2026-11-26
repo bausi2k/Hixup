@@ -40,8 +40,14 @@ public struct MarkerReportInput: Sendable {
     public let alerts: [Alert]
     public let settings: AgentSettings
     public let system: SystemInfo
+    /// Alarme, die als eigener Abschnitt im Bericht stehen (nicht nur als Ereignis im Fenster eines Markers).
+    public let focusAlerts: [Alert]
 
-    public init(markers: [Marker], snapshots: [Snapshot], alerts: [Alert], settings: AgentSettings, system: SystemInfo) {
+    public init(
+        markers: [Marker], snapshots: [Snapshot], alerts: [Alert], settings: AgentSettings, system: SystemInfo,
+        focusAlerts: [Alert] = []
+    ) {
+        self.focusAlerts = focusAlerts
         self.markers = markers
         self.snapshots = snapshots
         self.alerts = alerts
@@ -75,14 +81,30 @@ public struct MarkerReportBuilder: Sendable {
         self.window = window
     }
 
+    /// Ein Abschnitt des Berichts: ein Marker oder ein Alarm mit Zeitpunkt, Titel und Tiefenmessung.
+    private struct Subject {
+        enum Kind { case marker, alert }
+        let kind: Kind
+        let timestamp: Date
+        let title: String?
+        let detail: SystemDetail?
+        let alert: Alert?
+
+        var asMarker: Marker { Marker(timestamp: timestamp, note: title, detail: detail) }
+    }
+
     public func build(_ input: MarkerReportInput) -> String {
-        var lines = [t("# Hixup-Bericht: Ruckler-Analyse"), "", t(Key.intro), ""]
-        lines += systemSection(input)
         let markers = input.markers.sorted { $0.timestamp < $1.timestamp }
-        if markers.isEmpty { lines += ["", t("Keine Marker im Zeitraum.")] }
-        for (index, marker) in markers.enumerated() {
-            lines += [""] + markerSection(marker, number: index + 1, input: input)
-        }
+            .map { Subject(kind: .marker, timestamp: $0.timestamp, title: $0.note, detail: $0.detail, alert: nil) }
+        let alerts = input.focusAlerts.sorted { $0.timestamp < $1.timestamp }
+            .map { Subject(kind: .alert, timestamp: $0.timestamp, title: $0.title, detail: $0.system, alert: $0) }
+
+        let intro = markers.isEmpty && !alerts.isEmpty ? Key.introAlert : (alerts.isEmpty ? Key.introMarker : Key.introBoth)
+        var lines = [t("# Hixup-Bericht: Ruckler-Analyse"), "", t(intro), ""]
+        lines += systemSection(input)
+        if markers.isEmpty && alerts.isEmpty { lines += ["", t("Keine Marker im Zeitraum.")] }
+        for (index, subject) in markers.enumerated() { lines += [""] + section(subject, number: index + 1, input: input) }
+        for (index, subject) in alerts.enumerated() { lines += [""] + section(subject, number: index + 1, input: input) }
         return lines.joined(separator: "\n") + "\n"
     }
 
@@ -106,7 +128,7 @@ public struct MarkerReportBuilder: Sendable {
                 number(settings.memoryLowPercent, fraction: 0), number(settings.processCPUPercent, fraction: 0),
                 number(settings.processEnergyWatts, fraction: 1), number(settings.systemCPUPercent, fraction: 0)
             ),
-            "- " + t("Nicht erfasst: Festplatten-Last, GPU, einzelne Fenster; Netzwerk nur beim Marker.")
+            "- " + t("Nicht erfasst: Festplatten-Last, GPU, einzelne Fenster; Netzwerk nur beim Marker oder Alarm.")
         ]
     }
 
@@ -119,9 +141,12 @@ public struct MarkerReportBuilder: Sendable {
 
     // MARK: - Marker
 
-    private func markerSection(_ marker: Marker, number index: Int, input: MarkerReportInput) -> [String] {
-        let title = marker.note.map { " – „\($0)“" } ?? ""
-        var lines = ["## Marker \(index) – \(dateText(marker.timestamp))\(title)", ""]
+    private func section(_ subject: Subject, number index: Int, input: MarkerReportInput) -> [String] {
+        let marker = subject.asMarker
+        let title = subject.title.map { " – „\($0)“" } ?? ""
+        let kind = subject.kind == .marker ? "Marker" : t("Alarm")
+        var lines = ["## \(kind) \(index) – \(dateText(subject.timestamp))\(title)", ""]
+        if let alert = subject.alert { lines += ["- " + triggerText(alert), ""] }
         lines += detailLines(marker.detail)
 
         let start = marker.timestamp.addingTimeInterval(-window)
@@ -137,8 +162,24 @@ public struct MarkerReportBuilder: Sendable {
             lines += ["", t("Hinweis: Nur %d von ca. %d erwarteten Messpunkten im Fenster (lief der Dienst zeitweise nicht?).", inWindow.count, expected)]
         }
         lines += [""] + appLines(inWindow)
-        lines += [""] + alertLines(input.alerts.filter { $0.timestamp >= start && $0.timestamp <= end })
+        lines += [""] + alertLines(input.alerts.filter {
+            $0.timestamp >= start && $0.timestamp <= end && !($0.timestamp == subject.timestamp && $0.ruleID == subject.alert?.ruleID)
+        })
         return lines
+    }
+
+    private func triggerText(_ alert: Alert) -> String {
+        let severity = alert.severity == .critical ? t("kritisch") : t("Warnung")
+        let isPressure = alert.ruleID.hasPrefix("memory-pressure")
+        let value = isPressure
+            ? MemoryPressureLevel(numeric: alert.value).name(language: language)
+            : number(alert.value, fraction: alert.value.rounded() == alert.value ? 0 : 1)
+        let threshold = isPressure
+            ? t("über") + " " + MemoryPressureLevel(numeric: alert.threshold).name(language: language)
+            : number(alert.threshold, fraction: alert.threshold.rounded() == alert.threshold ? 0 : 1)
+        var text = t("Auslöser: %@, Wert %@, Schwelle %@", severity, value, threshold)
+        if let process = alert.detail { text += " (" + t("Prozess: %@", process) + ")" }
+        return text
     }
 
     private func assessmentLines(marker: Marker, snapshots: [Snapshot], settings: AgentSettings) -> [String] {
@@ -261,6 +302,8 @@ public struct MarkerReportBuilder: Sendable {
     }
 
     private enum Key {
-        static let intro = "Dieser Bericht stammt von Hixup, einer Überwachung für den Mac. Ein „Marker“ bedeutet: Der Nutzer hat in diesem Moment einen Ruckler oder Hänger bemerkt. Bitte analysiere pro Marker die wahrscheinlichste Ursache anhand der Messwerte, nenne Auffälligkeiten (Speicherdruck, CPU, Energie, Thermik, Netzwerk) und empfiehl konkrete nächste Schritte."
+        static let introAlert = "Dieser Bericht stammt von Hixup, einer Überwachung für den Mac. Ein Alarm bedeutet: Eine Hixup-Regel hat automatisch ausgelöst, weil ein Wert seine Schwelle überschritten hat. Bitte analysiere pro Alarm die wahrscheinlichste Ursache anhand der Messwerte, nenne Auffälligkeiten (Speicherdruck, CPU, Energie, Thermik, Netzwerk) und empfiehl konkrete nächste Schritte."
+        static let introBoth = "Dieser Bericht stammt von Hixup, einer Überwachung für den Mac. Ein „Marker“ bedeutet: Der Nutzer hat in diesem Moment einen Ruckler oder Hänger bemerkt. Ein Alarm bedeutet: Eine Hixup-Regel hat automatisch ausgelöst. Bitte analysiere pro Marker und Alarm die wahrscheinlichste Ursache anhand der Messwerte, nenne Auffälligkeiten (Speicherdruck, CPU, Energie, Thermik, Netzwerk) und empfiehl konkrete nächste Schritte."
+        static let introMarker = "Dieser Bericht stammt von Hixup, einer Überwachung für den Mac. Ein „Marker“ bedeutet: Der Nutzer hat in diesem Moment einen Ruckler oder Hänger bemerkt. Bitte analysiere pro Marker die wahrscheinlichste Ursache anhand der Messwerte, nenne Auffälligkeiten (Speicherdruck, CPU, Energie, Thermik, Netzwerk) und empfiehl konkrete nächste Schritte."
     }
 }

@@ -168,3 +168,7 @@ Hixup soll selbst kaum Last erzeugen: Der Hintergrunddienst braucht rund 0,2 % C
 ## Notiz zum Marker
 
 Nach dem Hotkey fragt ein kleines Feld "Was hakt?" nach einem Stichwort. Die Notiz lässt sich später im Marker-Detailfenster ändern und fließt in den Bericht für die KI-Analyse ein.
+
+## Alarme analysieren
+
+Ein Klick auf einen Alarm im Dashboard zeigt Auslöser, Messwerte und mögliche Ursachen und erzeugt denselben Bericht wie für Marker. Beim Auslösen eines Alarms misst Hixup zusätzlich einmalig Netzwerk, Swap und Thermik (drei Pings an 1.1.1.1).
