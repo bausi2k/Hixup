@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.5.0] – Hixup apportiert
+
+Marker mit Tiefenmessung (Speicherdruck, Swap, Thermik, Netzwerk), Export der Marker als Bericht für KI-Analysen, Fokus-Fix und Notarisierungs-Doku.
+
 ### Marker-Export für KI-Analysen
 
 - Dashboard → Ereignisse → "Für KI exportieren": erzeugt einen Markdown-Bericht (Zwischenablage oder Datei) für alle Marker des Zeitraums; Rechtsklick auf einen Marker exportiert nur diesen
