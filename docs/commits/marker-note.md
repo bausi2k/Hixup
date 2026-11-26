@@ -4,4 +4,4 @@ Branch: feature/marker-note (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (siehe git log) | feat: marker note via hotkey panel and detail view |
+| 7cfa8f4 | feat: marker note via hotkey panel and detail view |
