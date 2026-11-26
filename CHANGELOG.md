@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fix: Fokus-Diebstahl
+
+- Hixup holte sich nach dem Start wiederholt den Fokus; der Wechsel zu anderen Apps war kaum möglich. Die Aktivierung läuft nur noch beim bewussten Einschalten des Dock-Symbols, und die Aktivierungsrichtlinie wird nur bei einer Änderung gesetzt
+
 ### Dashboard aufgeräumt
 
 - Diagramme im 2×2-Raster (Speicher, CPU, Energie, Ressourcenhungrigste Apps); Schwellenlinien mit Beschriftung (Werte aus den Einstellungen)

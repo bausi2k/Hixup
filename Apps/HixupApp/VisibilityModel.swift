@@ -29,10 +29,12 @@ final class VisibilityModel {
         defaults.set(new.showInDock, forKey: Self.dockKey)
         defaults.set(new.showMenuBarItem, forKey: Self.menuBarKey)
         applyActivationPolicy()
+        if new.showInDock { NSApplication.shared.activate(ignoringOtherApps: true) }
     }
 
     private func applyActivationPolicy() {
-        NSApplication.shared.setActivationPolicy(value.showInDock ? .regular : .accessory)
-        if value.showInDock { NSApplication.shared.activate(ignoringOtherApps: true) }
+        let policy: NSApplication.ActivationPolicy = value.showInDock ? .regular : .accessory
+        // SwiftUI kann den Initialisierer mehrfach ausfuehren; ein unveraenderter Wert darf nichts bewirken.
+        if NSApplication.shared.activationPolicy() != policy { NSApplication.shared.setActivationPolicy(policy) }
     }
 }
