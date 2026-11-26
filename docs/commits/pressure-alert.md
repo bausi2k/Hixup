@@ -4,4 +4,4 @@ Branch: feature/pressure-alert (basiert auf main)
 
 | Commit | Beschreibung |
 |---|---|
-| (siehe git log) | feat: memory pressure alerts |
+| 2209a4d | feat: memory pressure alerts |
