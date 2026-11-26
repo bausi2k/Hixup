@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.8.0] – Hixup hört zu
+
+Marker mit Notiz: Nach dem Hotkey fragt ein kleines Feld "Was hakt?", die Notiz lässt sich im Detailfenster ändern und fließt in den KI-Bericht ein.
+
 ### Marker mit Notiz
 
 - Nach dem Hotkey (⌃⌥⌘H) erscheint ein kleines Eingabefeld "Was hakt?": Enter speichert, Esc oder 8 s ohne Eingabe schließen es. Der Marker selbst ist sofort gespeichert; das Feld nimmt Tastatureingaben an, ohne die aktive App zu wechseln
