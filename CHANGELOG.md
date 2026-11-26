@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+### Ressourcenschonender Betrieb
+
+- Gemessen im Ruhezustand (nur Menüleiste): CPU von rund 2,3 % auf rund 0,3 %, Speicher von 55–75 MB auf rund 30 MB (Release-Build); der Hintergrunddienst lag schon bei 0,2 % CPU und 9 MB
+- Status und Verlauf werden aus einem einzigen Lesevorgang berechnet (`StatusService.overview`) statt dieselben 120 Snapshots doppelt zu dekodieren
+- Datenbankzugriffe laufen im Hintergrund statt im Hauptthread
+- Popover und Dashboard aktualisieren nur, solange ihr Fenster tatsächlich sichtbar ist (`WindowVisibility`); sonst alle 20 s nur für das Menüleisten-Symbol; geschlossene Dashboards geben ihre Daten frei
+- Diagrammpunkte kommen aus eigenen Spalten (`avail`, `cpu_sum`, `energy_sum`, `sys_cpu`) statt aus dem JSON; ältere Zeilen werden weiter korrekt gelesen (Migration ohne Neuberechnung)
+- Die Rangliste im Dashboard nutzt höchstens 120 gleichmäßig verteilte Messpunkte
+- Dashboard-Takt je Zeitraum: 1 Std. 10 s, 24 Std. 60 s, 14 Tage 300 s
+- Unveränderte Daten lösen keine Neuberechnung der Ansichten mehr aus
+- 236 Tests
+
 ### Speicherdruck als Alarm
 
 - Der Agent misst den Speicherdruck (`kern.memorystatus_vm_pressure_level`) bei jeder Messung; `Snapshot.memoryPressure` ist optional, alte Daten bleiben lesbar

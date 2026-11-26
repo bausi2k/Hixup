@@ -13,10 +13,17 @@ final class StatusModel {
     private let service: StatusService?
     private let recorder: MarkerRecorder?
     private let refreshInterval: Duration
+    private let idleInterval: Duration
     private var task: Task<Void, Never>?
+    private var activeSources = Set<String>()
+    private var isRefreshing = false
 
-    init(refreshInterval: Duration = .seconds(5)) {
+    /// - Parameters:
+    ///   - refreshInterval: Takt, solange Popover oder Dashboard sichtbar sind.
+    ///   - idleInterval: Seltenerer Takt nur fuer das Menueleisten-Symbol.
+    init(refreshInterval: Duration = .seconds(5), idleInterval: Duration = .seconds(20)) {
         self.refreshInterval = refreshInterval
+        self.idleInterval = idleInterval
         do {
             try FileManager.default.createDirectory(
                 at: HixupPaths.supportDirectory, withIntermediateDirectories: true
@@ -52,22 +59,45 @@ final class StatusModel {
         }
     }
 
+    /// Meldet, ob eine Ansicht (z. B. "popover" oder "dashboard") sichtbar ist; solange mindestens eine
+    /// sichtbar ist, gilt der schnelle Takt.
+    func setActive(_ active: Bool, source: String) {
+        let wasIdle = activeSources.isEmpty
+        if active { activeSources.insert(source) } else { activeSources.remove(source) }
+        if wasIdle && !activeSources.isEmpty { refresh() }
+    }
+
+    /// Liest im Hintergrund, damit das Dekodieren der Snapshots die Oberflaeche nicht blockiert.
     func refresh() {
-        guard let service else { return }
-        do {
-            status = try service.current()
-            trend = try service.trend()
-            loadError = nil
-        } catch {
+        guard let service, !isRefreshing else { return }
+        isRefreshing = true
+        Task { [weak self] in
+            let result = await Task.detached(priority: .utility) { Result { try service.overview() } }.value
+            self?.apply(result)
+        }
+    }
+
+    private func apply(_ result: Result<(status: SystemStatus, trend: [TrendPoint]), Error>) {
+        isRefreshing = false
+        switch result {
+        case .success(let overview):
+            // Unveraenderte Werte nicht neu zuweisen: jede Zuweisung loest eine Neuberechnung der Ansichten aus.
+            if status != overview.status { status = overview.status }
+            if trend != overview.trend { trend = overview.trend }
+            if loadError != nil { loadError = nil }
+        case .failure(let error):
             loadError = error.localizedDescription
         }
     }
 
+    private var currentInterval: Duration { activeSources.isEmpty ? idleInterval : refreshInterval }
+
     private func start() {
         refresh()
-        task = Task { [weak self, refreshInterval] in
+        task = Task { [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(for: refreshInterval)
+                let interval = self?.currentInterval ?? .seconds(20)
+                try? await Task.sleep(for: interval)
                 self?.refresh()
             }
         }

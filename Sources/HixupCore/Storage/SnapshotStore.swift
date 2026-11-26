@@ -15,6 +15,8 @@ public protocol SnapshotStore: Sendable {
     /// Wie `sampledSnapshots`, behaelt aber je Zeitabschnitt den am hoechsten belasteten Snapshot,
     /// damit kurze Spitzen in langen Zeitraeumen sichtbar bleiben.
     func peakSnapshots(from start: Date, to end: Date, maxPoints: Int) throws -> [Snapshot]
+    /// Wie `peakSnapshots`, liefert aber nur die Diagrammwerte und liest sie aus Spalten, ohne JSON zu dekodieren.
+    func peakPoints(from start: Date, to end: Date, maxPoints: Int) throws -> [TrendPoint]
     /// Loescht alle Snapshots vor `date` und gibt die Anzahl zurueck.
     @discardableResult
     func purge(olderThan date: Date) throws -> Int

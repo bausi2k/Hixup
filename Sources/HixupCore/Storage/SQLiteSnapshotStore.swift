@@ -8,7 +8,11 @@ public final class SQLiteSnapshotStore: SnapshotStore, @unchecked Sendable {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp REAL NOT NULL,
             payload BLOB NOT NULL,
-            load REAL
+            load REAL,
+            avail REAL,
+            cpu_sum REAL,
+            energy_sum REAL,
+            sys_cpu REAL
         );
         CREATE INDEX IF NOT EXISTS idx_snapshots_timestamp ON snapshots(timestamp);
         """
@@ -20,19 +24,25 @@ public final class SQLiteSnapshotStore: SnapshotStore, @unchecked Sendable {
     /// - Parameter path: Dateipfad oder `":memory:"`.
     public init(path: String) throws {
         database = try SQLiteDatabase(path: path, schema: Self.schema)
-        try addLoadColumnIfMissing()
+        try addMissingColumns()
     }
 
-    /// Migration fuer Datenbanken aus Version 0.2/0.3 ohne `load`-Spalte.
-    private func addLoadColumnIfMissing() throws {
-        let hasColumn = try database.withStatement("PRAGMA table_info(snapshots)") { statement in
-            var found = false
-            while sqlite3_step(statement) == SQLITE_ROW {
-                if String(cString: sqlite3_column_text(statement, 1)) == "load" { found = true }
-            }
-            return found
+    /// Migration fuer aeltere Datenbanken: ergaenzt `load` und die Diagrammspalten. Alte Zeilen bleiben ohne
+    /// Werte und werden beim Lesen weiter aus dem JSON gelesen.
+    private func addMissingColumns() throws {
+        let existing = try database.withStatement("PRAGMA table_info(snapshots)") { statement in
+            var names = Set<String>()
+            while sqlite3_step(statement) == SQLITE_ROW { names.insert(String(cString: sqlite3_column_text(statement, 1))) }
+            return names
         }
-        if !hasColumn { try database.execute("ALTER TABLE snapshots ADD COLUMN load REAL;") }
+        for column in ["load", "avail", "cpu_sum", "energy_sum", "sys_cpu"] where !existing.contains(column) {
+            try database.execute("ALTER TABLE snapshots ADD COLUMN \(column) REAL;")
+        }
+    }
+
+    /// Entfernt die Diagrammspalten, um Altdaten nachzustellen.
+    func clearSummaryColumnsForTesting() throws {
+        try database.execute("UPDATE snapshots SET avail = NULL, cpu_sum = NULL, energy_sum = NULL, sys_cpu = NULL;")
     }
 
     var journalMode: String { database.journalMode }
@@ -45,10 +55,17 @@ public final class SQLiteSnapshotStore: SnapshotStore, @unchecked Sendable {
             throw StorageError.encodingFailed(String(describing: error))
         }
 
-        try database.withStatement("INSERT INTO snapshots (timestamp, payload, load) VALUES (?, ?, ?)") { statement in
+        try database.withStatement(
+            "INSERT INTO snapshots (timestamp, payload, load, avail, cpu_sum, energy_sum, sys_cpu) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        ) { statement in
+            let point = TrendPoint(snapshot: snapshot)
             sqlite3_bind_double(statement, 1, snapshot.timestamp.timeIntervalSince1970)
             SQLiteDatabase.bind(payload, at: 2, in: statement)
             sqlite3_bind_double(statement, 3, snapshot.loadScore)
+            sqlite3_bind_double(statement, 4, point.availableMemoryPercent)
+            sqlite3_bind_double(statement, 5, point.cpuPercent)
+            sqlite3_bind_double(statement, 6, point.energyWatts)
+            if let systemCPU = point.systemCPUPercent { sqlite3_bind_double(statement, 7, systemCPU) } else { sqlite3_bind_null(statement, 7) }
             try database.step(statement, expecting: SQLITE_DONE)
         }
     }
@@ -109,6 +126,43 @@ public final class SQLiteSnapshotStore: SnapshotStore, @unchecked Sendable {
             while sqlite3_step(statement) == SQLITE_ROW {
                 guard let data = SQLiteDatabase.decodeBlob(from: statement, column: 0) else { continue }
                 result.append(try decoder.decode(Snapshot.self, from: data))
+            }
+            return result
+        }
+    }
+
+    public func peakPoints(from start: Date, to end: Date, maxPoints: Int) throws -> [TrendPoint] {
+        let limit = max(maxPoints, 1)
+        let grouped = try count(from: start, to: end) > limit
+        let bucketSeconds = max(end.timeIntervalSince(start) / Double(limit), 0.001)
+        let sql = """
+            SELECT timestamp, avail, cpu_sum, energy_sum, sys_cpu, CASE WHEN avail IS NULL THEN payload END, MAX(COALESCE(load, 0))
+            FROM snapshots WHERE timestamp >= ? AND timestamp <= ?
+            \(grouped ? "GROUP BY CAST((timestamp - ?) / ? AS INTEGER)" : "GROUP BY id")
+            ORDER BY timestamp ASC
+            """
+        return try database.withStatement(sql) { statement in
+            sqlite3_bind_double(statement, 1, start.timeIntervalSince1970)
+            sqlite3_bind_double(statement, 2, end.timeIntervalSince1970)
+            if grouped {
+                sqlite3_bind_double(statement, 3, start.timeIntervalSince1970)
+                sqlite3_bind_double(statement, 4, bucketSeconds)
+            }
+
+            var result: [TrendPoint] = []
+            while sqlite3_step(statement) == SQLITE_ROW {
+                if sqlite3_column_type(statement, 1) != SQLITE_NULL {
+                    let systemCPU = sqlite3_column_type(statement, 4) == SQLITE_NULL ? nil : sqlite3_column_double(statement, 4)
+                    result.append(TrendPoint(
+                        timestamp: Date(timeIntervalSince1970: sqlite3_column_double(statement, 0)),
+                        availableMemoryPercent: sqlite3_column_double(statement, 1),
+                        cpuPercent: sqlite3_column_double(statement, 2),
+                        energyWatts: sqlite3_column_double(statement, 3),
+                        systemCPUPercent: systemCPU
+                    ))
+                } else if let data = SQLiteDatabase.decodeBlob(from: statement, column: 5) {
+                    result.append(TrendPoint(snapshot: try decoder.decode(Snapshot.self, from: data)))
+                }
             }
             return result
         }
