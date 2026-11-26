@@ -148,3 +148,7 @@ Schritte fuer ein signiertes, notarisiertes DMG stehen in [docs/notarization.md]
 ## Tiefenmessung am Marker
 
 Beim Setzen eines Markers erfasst Hixup einmalig Speicherdruck, Swap, thermischen Zustand, Energiesparmodus und Netzwerkdaten (Schnittstelle, Latenz und Paketverlust zum Router und per Ping zu 1.1.1.1). Die Werte hängen am Marker und dienen der Ursachenanalyse, z. B. im geplanten Export für KI-Analysen.
+
+## Marker-Export für KI
+
+Im Dashboard erzeugt "Für KI exportieren" (Bereich Ereignisse) einen Markdown-Bericht mit den Messwerten rund um die Marker (±5 Minuten), der Tiefenmessung, Systeminfos und einem Analyseauftrag. Der Bericht landet in der Zwischenablage oder in einer Datei und lässt sich direkt in eine KI einfügen. Er enthält nur Prozessnamen und Messwerte. Ein einzelner Marker lässt sich per Rechtsklick exportieren.

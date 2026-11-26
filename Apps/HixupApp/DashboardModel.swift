@@ -14,6 +14,7 @@ final class DashboardModel {
     private(set) var loadError: String?
 
     private let service: HistoryService?
+    private let reports: MarkerReportService?
     private var task: Task<Void, Never>?
 
     init(refreshInterval: Duration = .seconds(10)) {
@@ -22,12 +23,16 @@ final class DashboardModel {
                 at: HixupPaths.supportDirectory, withIntermediateDirectories: true
             )
             let path = HixupPaths.databaseURL.path
-            service = HistoryService(
-                snapshots: try SQLiteSnapshotStore(path: path),
-                events: try SQLiteEventStore(path: path)
+            let snapshots = try SQLiteSnapshotStore(path: path)
+            let events = try SQLiteEventStore(path: path)
+            service = HistoryService(snapshots: snapshots, events: events)
+            reports = MarkerReportService(
+                snapshots: snapshots, events: events,
+                settings: { AgentSettings.load(from: HixupPaths.settingsURL) }
             )
         } catch {
             service = nil
+            reports = nil
             loadError = error.localizedDescription
         }
         refresh()
@@ -37,6 +42,11 @@ final class DashboardModel {
                 self?.refresh()
             }
         }
+    }
+
+    /// Markdown-Bericht fuer eine KI-Analyse der gegebenen Marker.
+    func report(for markers: [Marker]) -> String? {
+        try? reports?.report(for: markers)
     }
 
     func refresh() {
