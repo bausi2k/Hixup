@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.4.0] – Hixup mit Hundeblick
+
+Eigenständige App mit optionalem Dock-Symbol, Deutsch und Englisch, Empfindlichkeit nach Hunderasse, Hunde-Wording sowie aufgeräumtes Popover, Dashboard und Einstellungen.
+
 ### Fix: Fokus-Diebstahl
 
 - Hixup holte sich nach dem Start wiederholt den Fokus; der Wechsel zu anderen Apps war kaum möglich. Die Aktivierung läuft nur noch beim bewussten Einschalten des Dock-Symbols, und die Aktivierungsrichtlinie wird nur bei einer Änderung gesetzt
