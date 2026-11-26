@@ -28,6 +28,8 @@ public enum Metric: String, Codable, Sendable {
     case highestProcessCPUPercent
     case highestProcessEnergyWatts
     case systemCPUPercent
+    /// Speicherdruck als Stufe: 0 normal, 1 Warnung, 2 kritisch.
+    case memoryPressure
 
     func reading(in snapshot: Snapshot) -> MetricReading? {
         switch self {
@@ -43,6 +45,8 @@ public enum Metric: String, Codable, Sendable {
                 .map { MetricReading(value: $0.energyWatts, detail: $0.name) }
         case .systemCPUPercent:
             return snapshot.systemCPUPercent.map { MetricReading(value: $0, detail: nil) }
+        case .memoryPressure:
+            return snapshot.memoryPressure.map { MetricReading(value: $0.numeric, detail: nil) }
         }
     }
 }

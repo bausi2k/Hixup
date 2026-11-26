@@ -199,3 +199,7 @@
 "Schließen" = "Close";
 "Keine Tiefenmessung für diesen Marker." = "No deep measurement for this marker.";
 "Messpunkte im Fenster: %d" = "Samples in the window: %d";
+"Speicherdruck erhöht" = "Memory pressure elevated";
+"Speicherdruck kritisch" = "Memory pressure critical";
+"Speicherdruck-Alarm" = "Memory pressure alerts";
+"Alarm, wenn macOS den Speicherdruck als erhöht oder kritisch meldet." = "Alert when macOS reports elevated or critical memory pressure.";

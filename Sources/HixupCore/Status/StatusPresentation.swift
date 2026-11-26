@@ -45,11 +45,15 @@ public enum StatusPresentation {
     }
 
     public static func valueText(_ violation: ActiveViolation) -> String {
-        format(violation.value, metric: violation.metric)
+        if violation.metric == .memoryPressure { return MemoryPressureLevel(numeric: violation.value).name() }
+        return format(violation.value, metric: violation.metric)
     }
 
     public static func thresholdText(_ violation: ActiveViolation) -> String {
         let direction = violation.comparison == .above ? L10n.tr("über") : L10n.tr("unter")
+        if violation.metric == .memoryPressure {
+            return "\(direction) \(MemoryPressureLevel(numeric: violation.threshold).name())"
+        }
         return "\(direction) \(format(violation.threshold, metric: violation.metric))"
     }
 
@@ -60,6 +64,17 @@ public enum StatusPresentation {
         case .memory: L10n.tr("Speicher")
         case .wakeups: L10n.tr("Wakeups")
         }
+    }
+
+    /// Text der Benachrichtigung zu einem Alert; Speicherdruck-Alerts nennen die Stufe statt Zahlen.
+    public static func alertBody(for alert: Alert) -> String {
+        if alert.ruleID.hasPrefix("memory-pressure") {
+            return L10n.tr("Speicherdruck: %@", MemoryPressureLevel(numeric: alert.value).name())
+        }
+        let measured = String(format: "%.0f", alert.value)
+        let threshold = String(format: "%.0f", alert.threshold)
+        let cause = alert.detail.map { " (\($0))" } ?? ""
+        return L10n.tr("Messwert %@, Schwelle %@%@", measured, threshold, cause)
     }
 
     /// Dauer in der groessten sinnvollen Einheit, z. B. "45 s", "2 Min." oder "1 Std. 5 Min.".

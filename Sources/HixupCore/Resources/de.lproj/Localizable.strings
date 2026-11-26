@@ -199,3 +199,7 @@
 "Schließen" = "Schließen";
 "Keine Tiefenmessung für diesen Marker." = "Keine Tiefenmessung für diesen Marker.";
 "Messpunkte im Fenster: %d" = "Messpunkte im Fenster: %d";
+"Speicherdruck erhöht" = "Speicherdruck erhöht";
+"Speicherdruck kritisch" = "Speicherdruck kritisch";
+"Speicherdruck-Alarm" = "Speicherdruck-Alarm";
+"Alarm, wenn macOS den Speicherdruck als erhöht oder kritisch meldet." = "Alarm, wenn macOS den Speicherdruck als erhöht oder kritisch meldet.";
