@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fix: Empfindlichkeits-Regler
+
+- Der Regler in den Einstellungen nutzt jetzt die volle Breite; die Namen Labrador, Border Collie und Dobermann stehen exakt unter den drei Haltepunkten (vorher begann die Spur erst bei rund 55 % der Breite, weil das Formular eine leere Beschriftungsspalte reservierte)
+
 ### Alert-Details und KI-Export
 
 - Ein Klick auf einen Alarm im Dashboard öffnet dasselbe Detailfenster wie ein Marker: Auslöser mit Wert und Schwelle, Tiefenmessung, Messwert-Tabelle, mögliche Ursachen und Berichtsvorschau mit Kopieren und Sichern
