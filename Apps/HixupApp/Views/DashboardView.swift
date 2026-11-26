@@ -9,7 +9,7 @@ struct DashboardView: View {
     @Bindable var model: DashboardModel
     @State private var eventFilter = EventFilter.all
     @State private var exportMessage: String?
-    @State private var selectedMarker: Marker?
+    @State private var selectedSubject: DetailSubject?
 
     @Environment(LanguageModel.self) private var languageModel
 
@@ -28,7 +28,7 @@ struct DashboardView: View {
             .padding(20)
         }
         .frame(minWidth: 760, minHeight: 640)
-        .sheet(item: $selectedMarker) { MarkerDetailView(marker: $0, model: model) }
+        .sheet(item: $selectedSubject) { MarkerDetailView(subject: $0, model: model) }
         .background(WindowVisibility { visible in
             status.setActive(visible, source: "dashboard")
             model.setVisible(visible)
@@ -146,6 +146,7 @@ struct DashboardView: View {
         let subtitle: String
         let icon: String
         let color: Color
+        let subject: DetailSubject
     }
 
     private func entries(_ history: History) -> [Entry] {
@@ -155,14 +156,14 @@ struct DashboardView: View {
                 title: alert.detail.map { "\(alert.title): \($0)" } ?? alert.title,
                 subtitle: L10n.tr("%.1f (Schwelle %.0f)", alert.value, alert.threshold),
                 icon: alert.severity == .critical ? "exclamationmark.octagon.fill" : "exclamationmark.triangle.fill",
-                color: alert.severity == .critical ? .red : .orange
+                color: alert.severity == .critical ? .red : .orange, subject: .alert(alert)
             )
         }
         let markers = history.markers.map {
             Entry(
                 id: "m-\($0.timestamp.timeIntervalSince1970)", time: $0.timestamp,
                 title: $0.note ?? L10n.tr("Marker"), subtitle: L10n.tr("Manuell gesetzt"),
-                icon: "flag.fill", color: .blue
+                icon: "flag.fill", color: .blue, subject: .marker($0)
             )
         }
         return (alerts + markers).sorted { $0.time > $1.time }
@@ -222,7 +223,7 @@ struct DashboardView: View {
     private func entryRow(_ item: Entry, history: History) -> some View {
         Button {
             model.focusedTime = model.focusedTime == item.time ? nil : item.time
-            selectedMarker = history.markers.first { $0.timestamp == item.time }
+            selectedSubject = item.subject
         } label: {
             HStack(alignment: .firstTextBaseline) {
                 Image(systemName: item.icon).foregroundStyle(item.color)

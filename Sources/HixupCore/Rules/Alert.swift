@@ -9,4 +9,6 @@ public struct Alert: Codable, Equatable, Sendable {
     /// Verursacher, z. B. der Prozessname bei CPU-Regeln.
     public let detail: String?
     public let timestamp: Date
+    /// Tiefenmessung zum Zeitpunkt des Alarms; wird kurz nach dem Ausloesen nachgetragen.
+    public var system: SystemDetail? = nil
 }

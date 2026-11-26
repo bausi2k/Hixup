@@ -116,7 +116,6 @@
 "Gerät: %@ · %@ · %@ GB RAM · macOS %@ · Betriebszeit %@" = "Gerät: %@ · %@ · %@ GB RAM · macOS %@ · Betriebszeit %@";
 "Messung: alle %@ s; erfasst werden Speicher, Gesamt-CPU und die belastungsstärksten Prozesse (CPU, Energie, RAM, Wakeups)." = "Messung: alle %@ s; erfasst werden Speicher, Gesamt-CPU und die belastungsstärksten Prozesse (CPU, Energie, RAM, Wakeups).";
 "Schwellen: freier Speicher unter %@ %%, Prozess-CPU über %@ %%, Prozess-Energie über %@ W, Gesamt-CPU über %@ %%." = "Schwellen: freier Speicher unter %@ %%, Prozess-CPU über %@ %%, Prozess-Energie über %@ W, Gesamt-CPU über %@ %%.";
-"Nicht erfasst: Festplatten-Last, GPU, einzelne Fenster; Netzwerk nur beim Marker." = "Nicht erfasst: Festplatten-Last, GPU, einzelne Fenster; Netzwerk nur beim Marker.";
 "%d T. %d Std." = "%d T. %d Std.";
 "Keine Tiefenmessung vorhanden (älterer Marker oder die Messung lief nicht durch)." = "Keine Tiefenmessung vorhanden (älterer Marker oder die Messung lief nicht durch).";
 "### Tiefenmessung beim Marker" = "### Tiefenmessung beim Marker";
@@ -206,3 +205,9 @@
 "Was hakt? Enter speichert, Esc schließt" = "Was hakt? Enter speichert, Esc schließt";
 "Notiz hinzufügen" = "Notiz hinzufügen";
 "Notiz gespeichert" = "Notiz gespeichert";
+"Alarm" = "Alarm";
+"Dieser Bericht stammt von Hixup, einer Überwachung für den Mac. Ein Alarm bedeutet: Eine Hixup-Regel hat automatisch ausgelöst, weil ein Wert seine Schwelle überschritten hat. Bitte analysiere pro Alarm die wahrscheinlichste Ursache anhand der Messwerte, nenne Auffälligkeiten (Speicherdruck, CPU, Energie, Thermik, Netzwerk) und empfiehl konkrete nächste Schritte." = "Dieser Bericht stammt von Hixup, einer Überwachung für den Mac. Ein Alarm bedeutet: Eine Hixup-Regel hat automatisch ausgelöst, weil ein Wert seine Schwelle überschritten hat. Bitte analysiere pro Alarm die wahrscheinlichste Ursache anhand der Messwerte, nenne Auffälligkeiten (Speicherdruck, CPU, Energie, Thermik, Netzwerk) und empfiehl konkrete nächste Schritte.";
+"Dieser Bericht stammt von Hixup, einer Überwachung für den Mac. Ein „Marker“ bedeutet: Der Nutzer hat in diesem Moment einen Ruckler oder Hänger bemerkt. Ein Alarm bedeutet: Eine Hixup-Regel hat automatisch ausgelöst. Bitte analysiere pro Marker und Alarm die wahrscheinlichste Ursache anhand der Messwerte, nenne Auffälligkeiten (Speicherdruck, CPU, Energie, Thermik, Netzwerk) und empfiehl konkrete nächste Schritte." = "Dieser Bericht stammt von Hixup, einer Überwachung für den Mac. Ein „Marker“ bedeutet: Der Nutzer hat in diesem Moment einen Ruckler oder Hänger bemerkt. Ein Alarm bedeutet: Eine Hixup-Regel hat automatisch ausgelöst. Bitte analysiere pro Marker und Alarm die wahrscheinlichste Ursache anhand der Messwerte, nenne Auffälligkeiten (Speicherdruck, CPU, Energie, Thermik, Netzwerk) und empfiehl konkrete nächste Schritte.";
+"Auslöser: %@, Wert %@, Schwelle %@" = "Auslöser: %@, Wert %@, Schwelle %@";
+"Prozess: %@" = "Prozess: %@";
+"Nicht erfasst: Festplatten-Last, GPU, einzelne Fenster; Netzwerk nur beim Marker oder Alarm." = "Nicht erfasst: Festplatten-Last, GPU, einzelne Fenster; Netzwerk nur beim Marker oder Alarm.";

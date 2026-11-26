@@ -23,18 +23,34 @@ public struct MarkerReportService: Sendable {
 
     /// Bericht fuer die gegebenen Marker; ohne Marker entsteht ein Bericht mit Hinweis.
     public func report(for markers: [Marker], language: AppLanguage? = nil, includeAssessment: Bool = true) throws -> String {
+        try buildReport(markers: markers, alerts: [], language: language, includeAssessment: includeAssessment)
+    }
+
+    /// Bericht fuer ausgeloeste Alarme (jeweils ein eigener Abschnitt).
+    public func report(forAlerts alerts: [Alert], language: AppLanguage? = nil, includeAssessment: Bool = true) throws -> String {
+        try buildReport(markers: [], alerts: alerts, language: language, includeAssessment: includeAssessment)
+    }
+
+    private func buildReport(markers: [Marker], alerts: [Alert], language: AppLanguage?, includeAssessment: Bool) throws -> String {
+        let times = markers.map(\.timestamp) + alerts.map(\.timestamp)
         let input: MarkerReportInput
-        if let first = markers.map(\.timestamp).min(), let last = markers.map(\.timestamp).max() {
+        if let first = times.min(), let last = times.max() {
             let start = first.addingTimeInterval(-window)
             let end = last.addingTimeInterval(window)
             input = MarkerReportInput(
                 markers: markers, snapshots: try snapshots.snapshots(from: start, to: end),
-                alerts: try events.alerts(from: start, to: end), settings: settings(), system: system()
+                alerts: try events.alerts(from: start, to: end), settings: settings(), system: system(),
+                focusAlerts: alerts
             )
         } else {
             input = MarkerReportInput(markers: [], snapshots: [], alerts: [], settings: settings(), system: system())
         }
         return MarkerReportBuilder(language: language, window: window, includeAssessment: includeAssessment).build(input)
+    }
+
+    /// Messwerte und Einschaetzung zu einem ausgeloesten Alarm.
+    public func insight(forAlert alert: Alert, language: AppLanguage? = nil) throws -> MarkerInsight {
+        try insight(for: Marker(timestamp: alert.timestamp, note: nil, detail: alert.system), language: language)
     }
 
     /// Messwerte und Einschaetzung fuer die Detailansicht eines Markers.

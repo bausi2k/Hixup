@@ -29,6 +29,7 @@ final class AgentAppDelegate: NSObject, NSApplicationDelegate {
                     return DefaultRules.rules(for: settings)
                 },
                 notifier: notifier,
+                alertDetail: AlertDetailRecorder(events: events),
                 loadSettings: { AgentSettings.load(from: HixupPaths.settingsURL) },
                 reportError: { logger.error("\(String(describing: $0), privacy: .public)") }
             )

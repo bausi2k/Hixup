@@ -10,6 +10,7 @@ public actor AgentRunner {
     private let engine: RuleEngine
     private let rulesForSettings: (@Sendable (AgentSettings) -> [Rule])?
     private let notifier: any AlertNotifier
+    private let alertDetail: AlertDetailRecorder?
     private let sleeper: any Sleeper
     private let loadSettings: @Sendable () -> AgentSettings
     private let now: @Sendable () -> Date
@@ -23,6 +24,7 @@ public actor AgentRunner {
         engine: RuleEngine,
         rulesForSettings: (@Sendable (AgentSettings) -> [Rule])? = nil,
         notifier: any AlertNotifier,
+        alertDetail: AlertDetailRecorder? = nil,
         sleeper: any Sleeper = TaskSleeper(),
         loadSettings: @escaping @Sendable () -> AgentSettings,
         now: @escaping @Sendable () -> Date = { Date() },
@@ -34,6 +36,7 @@ public actor AgentRunner {
         self.engine = engine
         self.rulesForSettings = rulesForSettings
         self.notifier = notifier
+        self.alertDetail = alertDetail
         self.sleeper = sleeper
         self.loadSettings = loadSettings
         self.now = now
@@ -80,6 +83,7 @@ public actor AgentRunner {
             } catch {
                 reportError(error)
             }
+            if let alertDetail { Task { await alertDetail.attachDetail(to: alert) } }
             await notifier.notify(alert)
         }
     }

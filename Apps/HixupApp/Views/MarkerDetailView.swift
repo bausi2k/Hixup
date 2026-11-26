@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 
 /// Detailansicht eines Markers: Messwerte, moegliche Ursachen und Vorschau des KI-Berichts.
 struct MarkerDetailView: View {
-    let marker: Marker
+    let subject: DetailSubject
     let model: DashboardModel
 
     @Environment(\.dismiss) private var dismiss
@@ -17,13 +17,25 @@ struct MarkerDetailView: View {
     @State private var message: String?
     @State private var note: String
 
-    init(marker: Marker, model: DashboardModel) {
-        self.marker = marker
+    init(subject: DetailSubject, model: DashboardModel) {
+        self.subject = subject
         self.model = model
-        _note = State(initialValue: marker.note ?? "")
+        if case .marker(let marker) = subject { _note = State(initialValue: marker.note ?? "") } else { _note = State(initialValue: "") }
     }
 
-    /// Der Marker mit der gerade eingetragenen Notiz; Grundlage fuer Titel und Bericht.
+    /// Der Marker (bei Alarmen ein Marker am Zeitpunkt des Alarms) mit der gerade eingetragenen Notiz.
+    private var marker: Marker {
+        switch subject {
+        case .marker(let marker): marker
+        case .alert(let alert): Marker(timestamp: alert.timestamp, note: nil, detail: alert.system)
+        }
+    }
+
+    private var alert: HixupCore.Alert? {
+        if case .alert(let alert) = subject { return alert }
+        return nil
+    }
+
     private var current: Marker {
         Marker(timestamp: marker.timestamp, note: note.isEmpty ? nil : note, detail: marker.detail)
     }
@@ -52,12 +64,19 @@ struct MarkerDetailView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Label(current.note ?? L10n.tr("Marker"), systemImage: "flag.fill")
-                .font(.title2.weight(.semibold)).foregroundStyle(.primary)
-            TextField(L10n.tr("Notiz hinzufügen"), text: $note)
-                .textFieldStyle(.roundedBorder)
-                .onSubmit(saveNote)
-                .padding(.vertical, 2)
+            if let alert {
+                Label(alert.title, systemImage: alert.severity == .critical ? "exclamationmark.octagon.fill" : "exclamationmark.triangle.fill")
+                    .font(.title2.weight(.semibold)).foregroundStyle(alert.severity == .critical ? .red : .orange)
+                Text(L10n.tr("%.1f (Schwelle %.0f)", alert.value, alert.threshold))
+                    .font(.callout).foregroundStyle(.secondary)
+            } else {
+                Label(current.note ?? L10n.tr("Marker"), systemImage: "flag.fill")
+                    .font(.title2.weight(.semibold)).foregroundStyle(.primary)
+                TextField(L10n.tr("Notiz hinzufügen"), text: $note)
+                    .textFieldStyle(.roundedBorder)
+                    .onSubmit(saveNote)
+                    .padding(.vertical, 2)
+            }
             Text(marker.timestamp.formatted(date: .complete, time: .standard))
                 .foregroundStyle(.secondary)
         }
@@ -177,12 +196,20 @@ struct MarkerDetailView: View {
     }
 
     private func load() {
-        insight = model.insight(for: marker)
+        if let alert {
+            insight = model.insight(forAlert: alert)
+        } else {
+            insight = model.insight(for: marker)
+        }
         reloadReport()
     }
 
     private func reloadReport() {
-        reportText = model.report(for: [current], includeAssessment: includeAssessment) ?? ""
+        if let alert {
+            reportText = model.report(forAlert: alert, includeAssessment: includeAssessment) ?? ""
+        } else {
+            reportText = model.report(for: [current], includeAssessment: includeAssessment) ?? ""
+        }
     }
 
     private func saveNote() {
