@@ -5,6 +5,23 @@ public enum MemoryPressureLevel: String, Codable, Sendable {
     case warning
     case critical
 
+    /// Numerische Stufe fuer Regeln: 0 normal, 1 Warnung, 2 kritisch.
+    public var numeric: Double {
+        switch self {
+        case .normal: 0
+        case .warning: 1
+        case .critical: 2
+        }
+    }
+
+    public init(numeric: Double) {
+        switch numeric {
+        case 2...: self = .critical
+        case 1...: self = .warning
+        default: self = .normal
+        }
+    }
+
     /// Werte von `kern.memorystatus_vm_pressure_level`: 1 normal, 2 Warnung, 4 kritisch.
     init(kernelLevel: Int32) {
         switch kernelLevel {

@@ -1,10 +1,12 @@
 public enum DefaultRules {
-    public static var all: [Rule] { [memoryLow, cpuSustained, energySustained, cpuSystemHigh] }
+    public static var all: [Rule] {
+        [memoryLow, cpuSustained, energySustained, cpuSystemHigh, memoryPressureWarning, memoryPressureCritical]
+    }
 
     /// Die Standardregeln mit Schwellen und Mindestdauern aus den Einstellungen.
     public static func rules(for settings: AgentSettings) -> [Rule] {
         let settings = settings.clamped()
-        return [
+        let base = [
             Rule(
                 id: memoryLow.id, title: memoryLow.title, severity: memoryLow.severity,
                 metric: memoryLow.metric, comparison: memoryLow.comparison,
@@ -28,6 +30,21 @@ public enum DefaultRules {
                 metric: cpuSystemHigh.metric, comparison: cpuSystemHigh.comparison,
                 threshold: settings.systemCPUPercent,
                 minimumDuration: settings.loadMinimumSeconds, cooldown: cpuSystemHigh.cooldown
+            )
+        ]
+        guard settings.memoryPressureAlerts else { return base }
+        return base + [
+            Rule(
+                id: memoryPressureWarning.id, title: memoryPressureWarning.title, severity: memoryPressureWarning.severity,
+                metric: memoryPressureWarning.metric, comparison: memoryPressureWarning.comparison,
+                threshold: memoryPressureWarning.threshold,
+                minimumDuration: settings.memoryMinimumSeconds, cooldown: memoryPressureWarning.cooldown
+            ),
+            Rule(
+                id: memoryPressureCritical.id, title: memoryPressureCritical.title, severity: memoryPressureCritical.severity,
+                metric: memoryPressureCritical.metric, comparison: memoryPressureCritical.comparison,
+                threshold: memoryPressureCritical.threshold,
+                minimumDuration: min(settings.memoryMinimumSeconds, 30), cooldown: memoryPressureCritical.cooldown
             )
         ]
     }
@@ -54,5 +71,19 @@ public enum DefaultRules {
         id: "energy-sustained", title: L10n.tr("Prozess mit hohem Energieverbrauch"), severity: .warning,
         metric: .highestProcessEnergyWatts, comparison: .above, threshold: 8,
         minimumDuration: 120, cooldown: 900
+    ) }
+
+    /// Speicherdruck ab Stufe "Warnung" (Stufe 1 liegt ueber 0).
+    public static var memoryPressureWarning: Rule { Rule(
+        id: "memory-pressure-warning", title: L10n.tr("Speicherdruck erhöht"), severity: .warning,
+        metric: .memoryPressure, comparison: .above, threshold: 0,
+        minimumDuration: 60, cooldown: 900
+    ) }
+
+    /// Speicherdruck "kritisch" (Stufe 2 liegt ueber 1).
+    public static var memoryPressureCritical: Rule { Rule(
+        id: "memory-pressure-critical", title: L10n.tr("Speicherdruck kritisch"), severity: .critical,
+        metric: .memoryPressure, comparison: .above, threshold: 1,
+        minimumDuration: 30, cooldown: 600
     ) }
 }

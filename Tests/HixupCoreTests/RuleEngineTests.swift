@@ -123,7 +123,7 @@ private let highEnergyRule = Rule(
 
     @Test func defaultRulesContainMemoryCPUAndEnergyChecks() {
         let ids = Set(DefaultRules.all.map(\.id))
-        #expect(ids == ["memory-low", "cpu-sustained", "energy-sustained", "cpu-system-high"])
+        #expect(ids == ["memory-low", "cpu-sustained", "energy-sustained", "cpu-system-high", "memory-pressure-warning", "memory-pressure-critical"])
     }
 
     @Test func defaultEnergyRuleUsesEightWattsForTwoMinutes() {

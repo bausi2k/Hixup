@@ -4,6 +4,15 @@
 
 ## [Unreleased]
 
+### Speicherdruck als Alarm
+
+- Der Agent misst den Speicherdruck (`kern.memorystatus_vm_pressure_level`) bei jeder Messung; `Snapshot.memoryPressure` ist optional, alte Daten bleiben lesbar
+- Neue Standardregeln "Speicherdruck erhöht" (Warnung, ab Stufe Warnung, Mindestdauer wie der Speicher-Alarm) und "Speicherdruck kritisch" (kritisch, ab Stufe kritisch, Mindestdauer höchstens 30 s)
+- Einstellung "Speicherdruck-Alarm" (Feineinstellung, standardmäßig an)
+- Popover, Verstöße und Benachrichtigung nennen die Stufe ("Speicherdruck: Warnung") statt Prozentzahlen
+- Die Spitzen im Dashboard gewichten hohen Druck mit; die Marker-Einschätzung nutzt den höchsten Druck im Fenster
+- 230 Tests; Messwert auf dem Mac geprüft
+
 ## [0.6.0] – Hixup schnüffelt
 
 Marker-Details mit Ursachen-Einschätzung und Berichtsvorschau, volle Prozessnamen und Hixup selbst nur noch bei echter Last in der Rangliste.

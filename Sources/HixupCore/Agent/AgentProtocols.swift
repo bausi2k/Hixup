@@ -26,12 +26,15 @@ public struct SystemSnapshotSampler: SnapshotSampling {
     private let memory: MemoryCollector
     private let processes: ProcessCollector
     private let cpu: SystemCPUCollector
+    private let pressure: @Sendable () -> MemoryPressureLevel
 
     public init(
         memory: MemoryCollector = MemoryCollector(),
         processes: ProcessCollector = ProcessCollector(),
-        cpu: SystemCPUCollector = SystemCPUCollector()
+        cpu: SystemCPUCollector = SystemCPUCollector(),
+        pressure: @escaping @Sendable () -> MemoryPressureLevel = { SystemDetailProvider().memoryPressure() }
     ) {
+        self.pressure = pressure
         self.memory = memory
         self.cpu = cpu
         self.processes = processes
@@ -46,7 +49,8 @@ public struct SystemSnapshotSampler: SnapshotSampling {
                 topCount: settings.topProcessCount,
                 watchedNames: Set(settings.watchedProcessNames)
             ),
-            systemCPUPercent: try cpu.collect()
+            systemCPUPercent: try cpu.collect(),
+            memoryPressure: pressure()
         )
     }
 }

@@ -156,3 +156,7 @@ Im Dashboard erzeugt "Für KI exportieren" (Bereich Ereignisse) einen Markdown-B
 ## Marker-Details
 
 Ein Klick auf einen Marker im Dashboard zeigt die Messwerte zum Zeitpunkt, mögliche Ursachen (regelbasierte Einschätzung, keine Gewissheit) und eine Vorschau des Berichts, der an eine KI übergeben werden kann. Hixup sendet selbst nichts; der Bericht verlässt die App nur, wenn er kopiert oder gesichert wird.
+
+## Speicherdruck-Alarm
+
+Neben dem freien Speicher überwacht Hixup den Speicherdruck, den macOS selbst meldet (normal, Warnung, kritisch). Bei anhaltender Warnung entsteht ein Alarm "Speicherdruck erhöht", bei kritischem Druck "Speicherdruck kritisch". Der Alarm lässt sich in den Einstellungen (Feineinstellung) abschalten.

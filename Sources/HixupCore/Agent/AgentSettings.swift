@@ -26,6 +26,8 @@ public struct AgentSettings: Codable, Equatable, Sendable {
     public var loadMinimumSeconds: TimeInterval
     /// Sprache der Oberflaeche in App und Agent.
     public var language: AppLanguage
+    /// Alarme bei erhoehtem oder kritischem Speicherdruck des Systems.
+    public var memoryPressureAlerts: Bool
 
     public init(
         sampleInterval: TimeInterval = 5,
@@ -38,8 +40,10 @@ public struct AgentSettings: Codable, Equatable, Sendable {
         memoryMinimumSeconds: TimeInterval = 60,
         loadMinimumSeconds: TimeInterval = 120,
         systemCPUPercent: Double = 90,
-        language: AppLanguage = .system
+        language: AppLanguage = .system,
+        memoryPressureAlerts: Bool = true
     ) {
+        self.memoryPressureAlerts = memoryPressureAlerts
         self.language = language
         self.systemCPUPercent = systemCPUPercent
         self.memoryLowPercent = memoryLowPercent
@@ -67,6 +71,7 @@ public struct AgentSettings: Codable, Equatable, Sendable {
         loadMinimumSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .loadMinimumSeconds) ?? fallback.loadMinimumSeconds
         systemCPUPercent = try container.decodeIfPresent(Double.self, forKey: .systemCPUPercent) ?? fallback.systemCPUPercent
         language = try container.decodeIfPresent(AppLanguage.self, forKey: .language) ?? fallback.language
+        memoryPressureAlerts = try container.decodeIfPresent(Bool.self, forKey: .memoryPressureAlerts) ?? fallback.memoryPressureAlerts
     }
 
     public func clamped() -> AgentSettings {
@@ -81,7 +86,8 @@ public struct AgentSettings: Codable, Equatable, Sendable {
             memoryMinimumSeconds: min(max(memoryMinimumSeconds, 10), 3_600),
             loadMinimumSeconds: min(max(loadMinimumSeconds, 10), 3_600),
             systemCPUPercent: min(max(systemCPUPercent, 30), 100),
-            language: language
+            language: language,
+            memoryPressureAlerts: memoryPressureAlerts
         )
     }
 

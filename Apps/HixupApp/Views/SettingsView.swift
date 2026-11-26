@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var systemCPU: Double
     @State private var memorySeconds: Double
     @State private var loadSeconds: Double
+    @State private var pressureAlerts: Bool
     @State private var message: String?
     @State private var lastLevel: SensitivityLevel
     @State private var showFineTuning = false
@@ -27,6 +28,7 @@ struct SettingsView: View {
         _systemCPU = State(initialValue: settings.systemCPUPercent)
         _memorySeconds = State(initialValue: settings.memoryMinimumSeconds)
         _loadSeconds = State(initialValue: settings.loadMinimumSeconds)
+        _pressureAlerts = State(initialValue: settings.memoryPressureAlerts)
         _lastLevel = State(initialValue: SensitivityLevel.matching(settings) ?? .borderCollie)
         _watched = State(initialValue: settings.watchedProcessNames.joined(separator: "\n"))
     }
@@ -160,6 +162,9 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var thresholds: some View {
+                Toggle(L10n.tr("Speicherdruck-Alarm"), isOn: $pressureAlerts)
+                Text(L10n.tr("Alarm, wenn macOS den Speicherdruck als erhöht oder kritisch meldet."))
+                    .font(.caption).foregroundStyle(.secondary)
                 Stepper(value: $memoryLow, in: 1...90, step: 1) {
                     LabeledContent(L10n.tr("Speicher knapp unter"), value: "\(Int(memoryLow)) %")
                 }
@@ -187,7 +192,7 @@ struct SettingsView: View {
             watchedProcessNames: AgentSettings.parseWatchedNames(watched), topProcessCount: topCount,
             memoryLowPercent: memoryLow, processCPUPercent: cpuPercent, processEnergyWatts: energyWatts,
             memoryMinimumSeconds: memorySeconds, loadMinimumSeconds: loadSeconds,
-            systemCPUPercent: systemCPU, language: languageModel.language
+            systemCPUPercent: systemCPU, language: languageModel.language, memoryPressureAlerts: pressureAlerts
         ).clamped()
         do {
             try settings.save(to: HixupPaths.settingsURL)

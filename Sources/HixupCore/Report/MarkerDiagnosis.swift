@@ -45,7 +45,7 @@ public struct MarkerDiagnosis: Sendable {
         ).evaluate(snapshots: snapshots, now: snapshots.map(\.timestamp).max() ?? marker.timestamp).offenders
 
         var findings = [
-            memoryFinding(marker.detail, metrics: metrics, settings: settings),
+            memoryFinding(marker.detail, windowPressure: snapshots.compactMap(\.memoryPressure).max { $0.numeric < $1.numeric }, metrics: metrics, settings: settings),
             cpuFinding(metrics: metrics, offenders: offenders, settings: settings),
             energyFinding(offenders: offenders, settings: settings),
             thermalFinding(marker.detail),
@@ -73,8 +73,10 @@ public struct MarkerDiagnosis: Sendable {
 
     // MARK: - Regeln
 
-    private func memoryFinding(_ detail: SystemDetail?, metrics: MarkerMetrics, settings: AgentSettings) -> DiagnosisFinding? {
-        let pressure = detail?.memoryPressure ?? .normal
+    private func memoryFinding(
+        _ detail: SystemDetail?, windowPressure: MemoryPressureLevel?, metrics: MarkerMetrics, settings: AgentSettings
+    ) -> DiagnosisFinding? {
+        let pressure = [detail?.memoryPressure, windowPressure].compactMap { $0 }.max { $0.numeric < $1.numeric } ?? .normal
         let lowest = metrics.freeMemory.peak
         let belowThreshold = lowest.map { $0 < settings.memoryLowPercent } ?? false
         let swapHigh = (detail?.swapUsedBytes ?? 0) > 2 * 1_073_741_824
