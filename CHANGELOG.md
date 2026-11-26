@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fix: Fokus-Diebstahl (Ursache)
+
+- SwiftUIs `MenuBarExtra` ruft den Setter von `isInserted` fortlaufend mit dem aktuellen Wert auf; `VisibilityModel` aktivierte dabei jedes Mal die App. Jetzt ist ein unveränderter Wert ein No-op, aktiviert wird nur beim echten Einschalten des Dock-Symbols. Ursache per `lldb`-Backtrace gefunden, Fix per Fokus-Messung bestätigt
+
 - Doku: Schritte zur Notarisierung (`docs/notarization.md`)
 
 ## [0.4.0] – Hixup mit Hundeblick
