@@ -221,3 +221,29 @@ private func date(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970:
         #expect(status.recentAlerts.map(\.ruleID) == ["r5", "r4", "r3"])
     }
 }
+
+@Suite struct OwnProcessFilterTests {
+    private func ranked(_ processes: [ProcessSample]) -> [String] {
+        let snapshots = [makeSnapshot(at: 0, processes: processes)]
+        return StatusEvaluator(rules: [], offenderWindow: 30, staleAfter: .infinity)
+            .evaluate(snapshots: snapshots, now: Date(timeIntervalSince1970: 5)).offenders.map(\.name)
+    }
+
+    private func proc(_ name: String, cpu: Double) -> ProcessSample {
+        ProcessSample(pid: Int32(abs(name.hashValue % 30_000)) + 1, name: name, residentBytes: 100_000_000, cpuPercent: cpu)
+    }
+
+    @Test func hixupProcessesWithoutProblemsAreHiddenFromTheRanking() {
+        let names = ranked([proc("Hixup", cpu: 6), proc("HixupAgent", cpu: 2), proc("Chrome", cpu: 10)])
+        #expect(names == ["Chrome"])
+    }
+
+    @Test func hixupProcessesThatReallyHogResourcesStayVisible() {
+        let names = ranked([proc("Hixup", cpu: 300), proc("Chrome", cpu: 10)])
+        #expect(names.contains("Hixup"))
+    }
+
+    @Test func similarlyNamedForeignProcessesAreNotAffected() {
+        #expect(ranked([proc("MyHixupTool", cpu: 5)]) == ["MyHixupTool"])
+    }
+}

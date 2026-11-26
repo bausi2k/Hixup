@@ -26,7 +26,8 @@ public struct SystemProcessLister: ProcessListing {
         var nameBuffer = [CChar](repeating: 0, count: 256)
         proc_name(pid, &nameBuffer, UInt32(nameBuffer.count))
         let nameBytes = nameBuffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }
-        let name = String(decoding: nameBytes, as: UTF8.self)
+        let shortName = String(decoding: nameBytes, as: UTF8.self)
+        let name = ProcessNaming.displayName(path: executablePath(pid: pid), fallback: shortName, pid: pid)
 
         let ticks = info.pti_total_user + info.pti_total_system
         let nanoseconds = ticks * UInt64(timebase.numer) / UInt64(timebase.denom)
@@ -34,12 +35,18 @@ public struct SystemProcessLister: ProcessListing {
 
         return RawProcess(
             pid: pid,
-            name: name.isEmpty ? "pid \(pid)" : name,
+            name: name,
             residentBytes: info.pti_resident_size,
             cpuTimeNanoseconds: nanoseconds,
             energyNanojoules: usage?.ri_energy_nj ?? 0,
             wakeups: usage.map { $0.ri_pkg_idle_wkups + $0.ri_interrupt_wkups } ?? 0
         )
+    }
+
+    private func executablePath(pid: pid_t) -> String? {
+        var buffer = [CChar](repeating: 0, count: 4_096)
+        guard proc_pidpath(pid, &buffer, UInt32(buffer.count)) > 0 else { return nil }
+        return String(cString: buffer)
     }
 
     /// Energie- und Wakeup-Zaehler; fehlt bei Prozessen, auf die ohne Rechte nicht zugegriffen werden darf.
