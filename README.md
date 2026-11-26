@@ -140,3 +140,7 @@ Hixup gibt es auf Deutsch und Englisch. In den Einstellungen waehlt "Sprache" zw
 ## Dock und Menueleiste
 
 Hixup laeuft als normale App mit Dock-Symbol und Hauptfenster. In den Einstellungen lassen sich Dock-Symbol und Menueleisten-Symbol getrennt abschalten, mindestens eines bleibt aktiv. Ohne Dock-Symbol arbeitet Hixup als reine Menueleisten-App; das Menueleisten-Symbol zeigt dann Status und Popover.
+
+## Notarisierung
+
+Schritte fuer ein signiertes, notarisiertes DMG stehen in [docs/notarization.md](docs/notarization.md).

@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+- Doku: Schritte zur Notarisierung (`docs/notarization.md`)
+
 ## [0.4.0] – Hixup mit Hundeblick
 
 Eigenständige App mit optionalem Dock-Symbol, Deutsch und Englisch, Empfindlichkeit nach Hunderasse, Hunde-Wording sowie aufgeräumtes Popover, Dashboard und Einstellungen.
